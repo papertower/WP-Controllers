@@ -9,6 +9,13 @@ class User extends Controller {
 
   protected function __construct() {}
 
+  public static function _construct() {
+    if ( __CLASS__ === get_called_class() ) {
+      add_action('profile_update', array(__CLASS__, 'profile_update'), 10, 2);
+      add_action('delete_user', array(__CLASS__, 'delete_user'), 10, 2);
+    }
+  }
+
   /**
    * Uses the same parameters as get_user_by, except the value can also be a WP_USER
    * @link http://codex.wordpress.org/Function_Reference/get_user_by
@@ -46,7 +53,7 @@ class User extends Controller {
         return new WP_Error('user_not_logged_in', 'No user is logged in to return');
 
       $user = wp_get_current_user();
-      
+
       $controller = wp_cache_get($user->ID, self::CACHE_GROUP);
       if ( false !== $controller ) return $controller;
     }
@@ -57,9 +64,9 @@ class User extends Controller {
     if ( $options['load_meta'] ) $controller->meta();
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
-    wp_cache_set($controller->email, $controller->id, self::CACHE_GROUP . '_' . 'email', MINUTE_IN_SECONDS * 10);
-    wp_cache_set($controller->nice_name, $controller->id, self::CACHE_GROUP . '_' . 'slug', MINUTE_IN_SECONDS * 10);
-    wp_cache_set($controller->login, $controller->id, self::CACHE_GROUP . '_' . 'login', MINUTE_IN_SECONDS * 10);
+    wp_cache_set($controller->email, $controller->id, self::CACHE_GROUP . '_email', MINUTE_IN_SECONDS * 10);
+    wp_cache_set($controller->nice_name, $controller->id, self::CACHE_GROUP . '_slug', MINUTE_IN_SECONDS * 10);
+    wp_cache_set($controller->login, $controller->id, self::CACHE_GROUP . '_login', MINUTE_IN_SECONDS * 10);
 
     return $controller;
   }
@@ -71,6 +78,22 @@ class User extends Controller {
       $controllers[] = self::get_controller($user);
 
     return $controllers;
+  }
+
+  public static function profile_update($user_id, $old_user) {
+    self::clear_controller_cache($old_user);
+  }
+
+  public static function delete_user($user_id, $reassign_id) {
+    $user = get_user_by('id', $user_id);
+    if ( $user ) self::clear_controller_cache($user);
+  }
+
+  public static function clear_controller_cache($user) {
+    wp_cache_delete($user->ID, self::CACHE_GROUP);
+    wp_cache_delete($user->data->user_email, self::CACHE_GROUP . '_email');
+    wp_cache_delete($user->data->user_nicename, self::CACHE_GROUP . '_slug');
+    wp_cache_delete($user->data->user_login, self::CACHE_GROUP . '_login');
   }
 
   public function meta() {
@@ -148,7 +171,7 @@ class User extends Controller {
         foreach($counts as $user_id => $count)
           $results[$user_id][$type] = (integer) $count;
       }
-  
+
       return $results;
 
     } else {
