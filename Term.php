@@ -13,6 +13,13 @@ class Term extends Controller {
 
   protected function __construct() {}
 
+  public static function _construct() {
+    if ( __CLASS__ === get_called_class() ) {
+      add_filter('edit_term', array(__CLASS__, 'edited_term'), 10, 3);
+      add_filter('pre_delete_term', array(__CLASS__, 'pre_delete_term'), 10, 2);
+    }
+  }
+
   public static function get_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
     $options = wp_parse_args($options, array(
       'load_meta'         => true,
@@ -52,6 +59,24 @@ class Term extends Controller {
     wp_cache_set($controller->taxonomy_id, $controller->id, self::CACHE_GROUP . '_' . 'term_taxonomy_id', MINUTE_IN_SECONDS * 10);
 
     return $controller;
+  }
+
+  public static function edit_term($term_id, $term_taxonomy_id, $taxonomy) {
+    self::clear_controller_cache($term_id, $taxonomy);
+  }
+
+  public static function pre_delete_term($term_id, $taxonomy) {
+    self::clear_controller_cache($term_id, $taxonomy);
+  }
+
+  public static function clear_controller_cache($term_id, $taxonomy) {
+    $term = get_term($term_id, $taxonomy);
+    if ( !$term || is_wp_error($term) ) return;
+
+    wp_cache_delete($term_id, self::CACHE_GROUP);
+    wp_cache_delete($term->slug, self::CACHE_GROUP . '_slug');
+    wp_cache_delete($term->name, self::CACHE_GROUP . '_name');
+    wp_cache_delete($term->term_taxonomy_id, self::CACHE_GROUP . '_term_taxonomy_id');
   }
 
   public static function distinct_post_terms(array $posts, $fields = '') {
