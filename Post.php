@@ -29,8 +29,7 @@ class Post extends Controller {
 
   /**
    * Retrieves the controller for the post type
-   * @since 1.7.0 intended to replace constructor
-   * @since 1.4.0
+   * @since 0.7.0
    * @param int|object $post id or WP_Post object
    * @param array $options
    * @return object
@@ -109,7 +108,7 @@ class Post extends Controller {
 
   /**
    * Returns controllers for an array of posts or wp_query arguments
-   * @since 1.7.0
+   * @since 0.7.0
    * @param array $args
    * @return array
    */
@@ -130,7 +129,7 @@ class Post extends Controller {
    * Called after this file is required. Adds the post type or page template
    * to the self::$post_types and self::$page_templates arrays, respectively,
    * for later use with the self::get_controller() function.
-   * @since 1.4.0
+   * @since 0.4.0
    * @see PostController::$post_types
    * @see PostController::$page_templates
    * @see PostController::get_controller()
@@ -190,7 +189,7 @@ class Post extends Controller {
 
   /**
    * Loads the standard post properties
-   * @since 1.0.0
+   * @since 0.4.0
    */
   protected function load_properties($post) {
     // Standard Properties
@@ -218,8 +217,7 @@ class Post extends Controller {
 
   /**
    * Loads all the post meta to the object.
-   * @since 1.7.0 Reconciled meta prefix handling to Controller class
-   * @since 1.3.0
+   * @since 0.7.0 Reconciled meta prefix handling to Controller class
    */
   public function meta() {
     if ( is_object($this->meta) ) return $this->meta;
@@ -306,7 +304,7 @@ class Post extends Controller {
 
   /**
    * Retrieves taxonomy terms and can apply urls
-   * @since 1.0.0
+   * @since 0.1.0
    * @param string|array $taxonomies
    * @return array|WP_Error
    */
@@ -326,7 +324,7 @@ class Post extends Controller {
 
   /**
    * Returns array of posts that share taxonomy
-   * @since 1.0.0
+   * @since 0.1.0
    * @param string $post_type
    * @param string|array $taxonomies
    * @param array options (optional)
@@ -401,9 +399,67 @@ class Post extends Controller {
   }
 
   /**
+   * Returns the featured image
+   * @since 0.1.0
+   * @param string $size (optional)
+   * @return object|null
+   */
+  public function featured_image($options = array()) {
+    $id = get_post_thumbnail_id($this->id);
+    if ( $id ) return get_picture_controller($id, $options);
+  }
+
+  /**
+   * Returns the content with standard filters applied
+   * @return string
+   */
+	public function content() {
+		return apply_filters('the_content', $this->content);
+  }
+
+  /**
+   * Returns the title with the WP filters applied
+   * @return string
+   */
+  public function title() {
+    return apply_filters('the_title', $this->title, $this->id, $this);
+  }
+
+  /**
+   * Returns the filtered excpert or limited content if no filter exists
+   * @since 0.1.0
+   * @param int $word_count (default: 40)
+   * @param string $ellipsis (default: '...')
+   * @param boolean $apply_filters (default: true)
+   * @return string
+   */
+	public function excerpt($word_count = 40, $ellipsis = '...', $apply_filters = true) {
+		if ( !empty($this->excerpt) )
+			return ($apply_filters) ? apply_filters('the_excerpt', $this->excerpt) : $this->excerpt;
+
+    if ( $apply_filters ) {
+      remove_filter('the_excerpt', 'wpautop');
+      $content = wp_kses($this->content, array(
+        'em'    => array(),
+        'strong'=> array(),
+        'u'     => array(),
+        'a'     => array(
+          'href'  => array(),
+          'title' => array()
+        )
+      ));
+      $content = strip_shortcodes($content);
+      $content = apply_filters('the_excerpt', $content);
+    } else
+      $content = $this->content;
+
+    return $word_count ? wp_trim_words($content, $word_count, $ellipsis) : $content;
+	}
+
+  /**
    * Retrieves a number of randomized posts. Use this instead of the
    * ORDER BY RAND method, as that can have tremendous overhead
-   * @since 1.5.0
+   * @since 0.5.0
    * @param int           $count      the number of posts to return randomized
    * @param array|string  $post_type  (optional) post type name or array thereof
    * @return object                   array of controllers or empty array
@@ -433,7 +489,7 @@ class Post extends Controller {
 
   /**
    * Returns post controllers organized by terms
-   * @since 1.0.0
+   * @since 0.1.0
    * @param string $taxonomy
    * @return array
    */
@@ -465,7 +521,7 @@ class Post extends Controller {
 
   /**
    * Returns the most recent n posts
-   * @since 1.0.0
+   * @since 0.1.0
    * @param int $numberposts
    * @param boolean|array $exclude excludes current post if true
    * @return array
@@ -487,63 +543,6 @@ class Post extends Controller {
     ));
   }
 
-  /**
-   * Returns the featured image
-   * @since 1.0.0
-   * @param string $size (optional)
-   * @return object|null
-   */
-  public function featured_image($options = array()) {
-    $id = get_post_thumbnail_id($this->id);
-    if ( $id ) return get_picture_controller($id, $options);
-  }
-
-  /**
-   * Returns the content with standard filters applied
-   * @return string
-   */
-	public function content() {
-		return apply_filters('the_content', $this->content);
-  }
-
-  /**
-   * Returns the title with the WP filters applied
-   * @return string
-   */
-  public function title() {
-    return apply_filters('the_title', $this->title, $this->id, $this);
-  }
-
-  /**
-   * Returns the filtered excpert or limited content if no filter exists
-   * @since 1.0.0
-   * @param int $word_count (default: 40)
-   * @param string $ellipsis (default: '...')
-   * @param boolean $apply_filters (default: true)
-   * @return string
-   */
-	public function excerpt($word_count = 40, $ellipsis = '...', $apply_filters = true) {
-		if ( !empty($this->excerpt) )
-			return ($apply_filters) ? apply_filters('the_excerpt', $this->excerpt) : $this->excerpt;
-
-    if ( $apply_filters ) {
-      remove_filter('the_excerpt', 'wpautop');
-      $content = wp_kses($this->content, array(
-        'em'    => array(),
-        'strong'=> array(),
-        'u'     => array(),
-        'a'     => array(
-          'href'  => array(),
-          'title' => array()
-        )
-      ));
-      $content = strip_shortcodes($content);
-      $content = apply_filters('the_excerpt', $content);
-    } else
-      $content = $this->content;
-
-    return $word_count ? wp_trim_words($content, $word_count, $ellipsis) : $content;
-	}
 };
 
 if ( !function_exists('get_post_controller') ) {
