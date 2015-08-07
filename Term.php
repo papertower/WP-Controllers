@@ -1,6 +1,6 @@
 <?php
 /*
- * @version 1.0.0
+ * @version 0.7.0
  * @author Jason Adams <jason.the.adams@gmail.com>
  */
 class Term extends Controller {
@@ -54,58 +54,6 @@ class Term extends Controller {
     return $controller;
   }
 
-  private function load_properties($term) {
-    // Load all the term properties
-    foreach($term as $key => $value)
-      $this->$key = $value;
-
-    // Extra properties
-    $this->term         =& $term;
-    $this->id           =& $this->term_id;
-    $this->group        =& $this->term_group;
-    $this->taxonomy_id  =& $this->term_taxonomy_id;
-  }
-
-  public function meta() {
-    if ( is_object($this->meta) ) return $this->meta;
-    return $this->_meta(get_term_custom($this->id));
-  }
-
-  public function url() {
-    return isset($this->url) ? $this->url : ( $this->url = get_term_link($this->term) );
-  }
-
-  private function error($code, $message, $data) {
-    $this->error = new WP_Error($code, $message, $data);
-  }
-
-  private static function check_object($object) {
-    return isset($object->term_id);
-  }
-
-  public function oldest_post($post_type) {
-    if ( !$this->count ) return;
-
-    $Post = get_post_controllers(array(
-      'post_type'   => $post_type,
-      'numberposts' => 1,
-      'orderby'     => 'date',
-      'order'       => 'ASC',
-      'tax_query'   => array(
-        array(
-          'taxonomy'    => $this->taxonomy,
-          'terms'       => $this->term_id
-        )
-      )
-    ));
-
-    if ( !empty($Post) ) return $Post[0];
-  }
-
-  public function description() {
-    return apply_filters('the_content', $this->description);
-  }
-
   public static function distinct_post_terms(array $posts, $fields = '') {
     $ids = array();
     foreach($posts as $post) {
@@ -144,6 +92,55 @@ class Term extends Controller {
       return $results;
     }
   }
+
+  private static function check_object($object) {
+    return isset($object->term_id);
+  }
+
+  private function load_properties($term) {
+    // Load all the term properties
+    foreach($term as $key => $value)
+      $this->$key = $value;
+
+    // Extra properties
+    $this->term         =& $term;
+    $this->id           =& $this->term_id;
+    $this->group        =& $this->term_group;
+    $this->taxonomy_id  =& $this->term_taxonomy_id;
+  }
+
+  public function meta() {
+    if ( is_object($this->meta) ) return $this->meta;
+    return $this->_meta(get_term_custom($this->id));
+  }
+
+  public function url() {
+    return isset($this->url) ? $this->url : ( $this->url = get_term_link($this->term) );
+  }
+
+  public function oldest_post($post_type) {
+    if ( !$this->count ) return;
+
+    $Post = get_post_controllers(array(
+      'post_type'   => $post_type,
+      'numberposts' => 1,
+      'orderby'     => 'date',
+      'order'       => 'ASC',
+      'tax_query'   => array(
+        array(
+          'taxonomy'    => $this->taxonomy,
+          'terms'       => $this->term_id
+        )
+      )
+    ));
+
+    if ( !empty($Post) ) return $Post[0];
+  }
+
+  public function description() {
+    return apply_filters('the_content', $this->description);
+  }
+
 };
 
 if ( !function_exists('get_term_controller') ) {
