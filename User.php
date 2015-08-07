@@ -115,6 +115,7 @@ class User extends Controller {
     $this->login            =& $user->data->user_login;
     $this->email            =& $user->data->user_email;
     $this->status           =& $user->data->user_status;
+    $this->registered       =& $user->data->user_registered;
 
     if ( $load_extra ) {
       $this->first_name       = $user->first_name;
@@ -122,7 +123,12 @@ class User extends Controller {
       $this->description      = $user->description;
     }
 
-    $this->registered       = new DateTime($user->data->user_registered);
+  }
+
+  public function registered($format) {
+    return ( 'timestamp' === $format )
+      ? strtotime($this->registered)
+      : date($format, strtotime($this->registered));
   }
 
   public function posts_url() {
