@@ -2,24 +2,35 @@
 /**
  * The base class for handling all controllers
  *
- * @version 1.0.0
+ * @version 0.7.0
  * @author Jason Adams <jason.the.adams@gmail.com>
  */
 abstract class Controller {
   public $meta;
 
   abstract public function meta();
-//   abstract static public function get_controller($key, $options);
 
+  /**
+   * Retrieves all the meta for the object and stores it in $this->meta
+   * Also checks key for prefix (e.g. {prefix}key) and processes meta accordingly
+   * Lastly, converts all hyphens to underscores, to fix a guilty habit
+   *
+   * @since 0.7.0
+   * @param array $meta result of get_post_custom of equivalent
+   */
   protected function _meta($meta) {
     $this->meta = new StdClass();
     $matches = null;
 
     foreach($meta as $key => $values) {
-      preg_match('/^(?:\{(.*)\})?(.*)/', $key, $matches);
-
-      $prefix = $matches[1];
-      $key = str_replace('-', '_', $matches[2]);
+      // Retrieve prefix in {prefix} if used
+      if ( $key[0] === '{' && preg_match('/^(?:\{(.*)\})?(.*)/', $key, $matches) ) {
+        $prefix = $matches[1];
+        $key = str_replace('-', '_', $matches[2]);
+      } else {
+        $prefix = '';
+        $key = str_replace('-', '_', $key);
+      }
 
       switch($prefix) {
         case 'array':
@@ -53,6 +64,8 @@ abstract class Controller {
             : array_map('maybe_unserialize', $values);
       }
     }
+    
+    return $this->meta;
   }
 }
 ?>
