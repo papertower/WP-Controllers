@@ -1,9 +1,13 @@
 <?php
+/**
+ * The Post class and get_post_controller functions
+ */
 
 /**
+ * Base Post Controller.
  * This is a [decorator](http://en.wikipedia.org/wiki/Decorator_pattern) class for the
  * native WP_POST class. It extends it with common controller functions as well as
- * expanding on the general functionality.
+ * expanding on the general functionality. All other post contollers inherit from this.
  *
  * @version 0.7.0
  * @author Jason Adams <jason.the.adams@gmail.com>
@@ -25,6 +29,11 @@ class Post extends Controller {
 	protected
     $post;
 
+  /**
+   * Do not use.
+   * Protect the constructor as we do not want the controllers
+   * to be instantiated directly. This is to ensure caching.
+   */
   protected function __construct() {}
 
   /**
@@ -126,6 +135,7 @@ class Post extends Controller {
 	}
 
   /**
+   * Static initialization.
    * Called after this file is required. Adds the post type or page template
    * to the self::$post_types and self::$page_templates arrays, respectively,
    * for later use with the self::get_controller() function.
@@ -168,6 +178,7 @@ class Post extends Controller {
   /**
    * Callback for the wp_insert_post filter, used to invalidate the cached
    * controllers for the saved post
+   * @ignore
    */
   public static function wp_insert_post($post_id, $post, $is_update) {
     if ( !$is_update ) return;
@@ -179,6 +190,7 @@ class Post extends Controller {
   /**
    * Callback for the trash_post filter, used to invalidate the cached
    * controllers for the trashed post
+   * @ignore
    */
   public static function trash_post() {
     if ( did_action('trash_post') ) return;
@@ -457,6 +469,8 @@ class Post extends Controller {
 	}
 
   /**
+   * Retrieves random posts
+   *
    * Retrieves a number of randomized posts. Use this instead of the
    * ORDER BY RAND method, as that can have tremendous overhead
    * @since 0.5.0
@@ -546,6 +560,10 @@ class Post extends Controller {
 };
 
 if ( !function_exists('get_post_controller') ) {
+  /**
+   * Global function to call Post::get_controller
+   * @see Post::get_controller
+   */
   function get_post_controller($key = null, $options = array()) { return Post::get_controller($key, $options); }
 }
 
