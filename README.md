@@ -1,4 +1,3 @@
-# WP Controllers
 ## WordPress development for the [OOP](https://en.wikipedia.org/wiki/Object-oriented_programming) Programmer
 #### So what's the story?
 WordPress is an excellent framework. It's secure, robust, extensible, and is fanatical about legacy support. What it's not, however, is strongly written using modern techniques. Please understand, that's not a sleight at the expense of the hard-working contributors. A lot of the code in WordPress was written years ago for versions of PHP that preceded the mass amounts of improvements made in PHP 5.3.x. The other side of it is that it's catered towards non-developers; that is, folks who want to make a website, and are willing to learn a little PHP, but have no intention of learning more than they need to for their site. And that's ok! But, for those who do want to develop in a stronger, more OOP manner, it can be a drag.
