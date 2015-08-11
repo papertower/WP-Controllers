@@ -39,9 +39,9 @@ class Post extends Controller {
   /**
    * Retrieves the controller for the post type
    * @since 0.7.0
-   * @param int|object $post id or WP_Post object
+   * @param string|int|object $post id, slug, or WP_Post object
    * @param array $options
-   * @return object
+   * @return Controller
    */
   public static function get_controller($key = null, $options = array()) {
     extract(wp_parse_args($options, array(
@@ -118,7 +118,7 @@ class Post extends Controller {
   /**
    * Returns controllers for an array of posts or wp_query arguments
    * @since 0.7.0
-   * @param array $args
+   * @param array $args Either an array of WP_Post objects or get_posts arguments
    * @return array
    */
   public static function get_controllers($args) {
@@ -559,16 +559,5 @@ class Post extends Controller {
 
 };
 
-if ( !function_exists('get_post_controller') ) {
-  /**
-   * Global function to call Post::get_controller
-   * @see Post::get_controller
-   */
-  function get_post_controller($key = null, $options = array()) { return Post::get_controller($key, $options); }
-}
-
-if ( !function_exists('get_post_controllers') ) {
-  function get_post_controllers($args) { return Post::get_controllers($args); }
-}
 
 ?>

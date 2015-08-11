@@ -17,8 +17,12 @@ class User extends Controller {
   }
 
   /**
-   * Uses the same parameters as get_user_by, except the value can also be a WP_USER
-   * @link http://codex.wordpress.org/Function_Reference/get_user_by
+   * Retrieve User controller
+   * @see http://codex.wordpress.org/Function_Reference/get_user_by
+   * @param int|string|object $key user value
+   * @param string $field field to retrieve by
+   * @param array $options controller options
+   * @return User
    */
   public static function get_controller($key = null, $field = 'id', $options = array()) {
     $options = wp_parse_args($options, array(
@@ -186,11 +190,4 @@ class User extends Controller {
     }
   }
 };
-
-if ( !function_exists('get_user_controller') ) {
-  function get_user_controller($key = null, $field = 'id', $options = array()) { return User::get_controller($key, $field, $options); }
-}
-
-if ( !function_exists('get_user_controllers') ) {
-  function get_user_controllers($args) { return User::get_controllers($args); }
-}
+?>

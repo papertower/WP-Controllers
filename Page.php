@@ -94,13 +94,4 @@ class Page extends Post {
   }
 
 }
-
-if ( !function_exists('get_page_controller') ) {
-  function get_page_controller($key = null, $options = array()) { return Page::get_controller($key, $options); }
-}
-
-if ( !function_exists('get_page_controllers') ) {
-  function get_page_controllers($args) { return Page::get_controllers($args); }
-}
-
 ?>

@@ -20,6 +20,15 @@ class Term extends Controller {
     }
   }
 
+  /**
+   * Retrieve the controller for the term
+   * @see https://codex.wordpress.org/Function_Reference/get_term_by
+   * @param int|string|object $key term value
+   * @param string $taxonomy taxonomy name
+   * @param string $field field to retrieve by
+   * @param array $options controller options
+   * @return Term
+   */
   public static function get_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
     $options = wp_parse_args($options, array(
       'load_meta'         => true,

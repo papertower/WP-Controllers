@@ -32,9 +32,4 @@ class Picture extends Attachment {
     return $details[3];
   }
 };
-
-if ( !function_exists('get_picture_controller') ) {
-  function get_picture_controller($key = null, $options = array()) { return Picture::get_controller($key, $options); }
-}
-
 ?>
