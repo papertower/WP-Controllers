@@ -4,8 +4,13 @@
  */
 
 $directory = __DIR__;
-spl_autload_register(function($class) use ($directory) {
-  include "$directory/$class";
+spl_autoload_register(function($class) use ($directory) {
+  if ( !file_exists("$directory/$class.php") ) return;
+
+  include "$directory/$class.php";
+  if ( class_exists($class) && method_exists($class, '_construct') ) {
+    call_user_func(array($class, '_construct'));
+  }
 });
 
 if ( !function_exists('get_post_controller') ) {
