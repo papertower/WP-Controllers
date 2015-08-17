@@ -64,7 +64,7 @@ abstract class Controller {
             : array_map('maybe_unserialize', $values);
       }
     }
-    
+
     return $this->meta;
   }
 }

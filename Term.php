@@ -11,8 +11,6 @@ class Term extends Controller {
     $group,
     $taxonomy_id;
 
-  protected function __construct() {}
-
   public static function _construct() {
     if ( __CLASS__ === get_called_class() ) {
       add_filter('edit_term', array(__CLASS__, 'edited_term'), 10, 3);
@@ -57,8 +55,7 @@ class Term extends Controller {
       if ( false !== $controller ) return $controller;
     }
 
-    $controller = new self();
-    $controller->load_properties($term);
+    $controller = new self($term);
 
     if ( $options['load_meta'] ) $controller->meta();
 
@@ -131,7 +128,7 @@ class Term extends Controller {
     return isset($object->term_id);
   }
 
-  private function load_properties($term) {
+  protected function __construct($term) {
     // Load all the term properties
     foreach($term as $key => $value)
       $this->$key = $value;

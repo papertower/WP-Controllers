@@ -1,8 +1,6 @@
 <?php
 
 class Page extends Post {
-  const VERSION = '1.0.1';
-
   protected static
     $post_type = 'page';
 

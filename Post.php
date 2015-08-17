@@ -26,15 +26,8 @@ class Post extends Controller {
   /**
    * @var object $post WP_Post class
    */
-	protected
+  protected
     $post;
-
-  /**
-   * Do not use.
-   * Protect the constructor as we do not want the controllers
-   * to be instantiated directly. This is to ensure caching.
-   */
-  protected function __construct() {}
 
   /**
    * Retrieves the controller for the post type
@@ -59,8 +52,8 @@ class Post extends Controller {
     if ( is_numeric($key) ) {
       $cached_post = wp_cache_get($key, 'postcontroller');
       if ( false !== $cached_post ) return $cached_post;
-      $post = get_post(intval($key));
-      if ( !$post ) return new WP_Error('post_id_not_found', 'No post was found for the provided ID', $key);
+      $_post = get_post(intval($key));
+      if ( !$_post ) return new WP_Error('post_id_not_found', 'No post was found for the provided ID', $key);
 
     } elseif ( is_string($key) ) {
       $post_id = wp_cache_get($key, 'postcontroller_slug');
@@ -76,36 +69,34 @@ class Post extends Controller {
       if ( empty($posts) )
         return new WP_Error('post_slug_not_found', 'No post was found for the provided slug', $key);
 
-      $post = $posts[0];
+      $_post = $posts[0];
 
     } elseif ( is_object($key) ) {
-      $post = wp_cache_get($key->ID, 'postcontroller');
-      if ( false !== $post ) return $post;
+      $_post = wp_cache_get($key->ID, 'postcontroller');
+      if ( false !== $_post ) return $_post;
 
-      $post = $key;
+      $_post = $key;
 
     } else {
       return new WP_Error('invalid_key_type', 'Key provied is unsupported type', $key);
     }
 
     // Construct, cache, and return post
-    if ( $post->post_type === 'page' ) {
-      $template = str_replace('.php', '', get_page_template_slug($post));
+    if ( $_post->post_type === 'page' ) {
+      $template = str_replace('.php', '', get_page_template_slug($_post));
 
       $controller = $template && isset(self::$page_templates[$template])
-        ? new self::$page_templates[$template]
-        : new Page;
+        ? new self::$page_templates[$template] ($_post)
+        : new Page ($_post);
 
-    } elseif ( $post->post_type === 'attachment' && wp_attachment_is_image($post->ID) ) {
-      $controller = new self::$post_types['image']();
+    } elseif ( $_post->post_type === 'attachment' && wp_attachment_is_image($_post->ID) ) {
+      $controller = new self::$post_types['image'] ($_post);
 
     } else {
-      $controller = ( isset(self::$post_types[$post->post_type]) )
-        ? new self::$post_types[$post->post_type]
-        : new self;
+      $controller = ( isset(self::$post_types[$_post->post_type]) )
+        ? new self::$post_types[$_post->post_type] ($_post)
+        : new self ($_post);
     }
-
-    $controller->load_properties($post);
 
     if ( $load_meta ) $controller->meta();
 
@@ -132,7 +123,7 @@ class Post extends Controller {
     }
 
     return $controllers;
-	}
+  }
 
   /**
    * Static initialization.
@@ -200,17 +191,20 @@ class Post extends Controller {
   }
 
   /**
-   * Loads the standard post properties
-   * @since 0.4.0
+   * Constructor.
+   * Protect the constructor as we do not want the controllers
+   * to be instantiated directly. This is to ensure caching.
+   * @since 0.7.0
+   * @param WP_Post $post
    */
-  protected function load_properties($post) {
+  protected function __construct($post) {
     // Standard Properties
     $this->post       =& $post;
     $this->id         =& $this->post->ID;
     $this->slug       =& $this->post->post_name;
-		$this->title      =& $this->post->post_title;
-		$this->excerpt    =& $this->post->post_excerpt;
-		$this->content    =& $this->post->post_content;
+    $this->title      =& $this->post->post_title;
+    $this->excerpt    =& $this->post->post_excerpt;
+    $this->content    =& $this->post->post_content;
     $this->status     =& $this->post->post_status;
     $this->type       =& $this->post->post_type;
     $this->author     =& $this->post->post_author;
@@ -320,9 +314,9 @@ class Post extends Controller {
    * @param string|array $taxonomies
    * @return array|WP_Error
    */
-	public function terms($taxonomies) {
-		// Retrieve terms
-		$terms = wp_get_post_terms($this->id, $taxonomies);
+  public function terms($taxonomies) {
+    // Retrieve terms
+    $terms = wp_get_post_terms($this->id, $taxonomies);
 
     if ( is_wp_error($terms) ) return $terms;
 
@@ -343,10 +337,10 @@ class Post extends Controller {
    * @return array of controllers
    */
   protected function related_posts($post_type, $taxonomies, $options = null) {
-		$options = wp_parse_args( $options, array(
-			'count'		=> -1,
-			'meta_query'=> null
-		));
+    $options = wp_parse_args( $options, array(
+      'count'    => -1,
+      'meta_query'=> null
+    ));
 
     $args = array(
       'post_type'     => $post_type,
@@ -357,35 +351,35 @@ class Post extends Controller {
       )
     );
 
-		if ( $options['meta_query'] ) {
-			$args['meta_query'] = $options['meta_query'];
-		}
+    if ( $options['meta_query'] ) {
+      $args['meta_query'] = $options['meta_query'];
+    }
 
-		if ( !is_array($taxonomies) )
-			$taxonomies = array($taxonomies);
+    if ( !is_array($taxonomies) )
+      $taxonomies = array($taxonomies);
 
-		foreach($taxonomies as $index => $taxonomy) {
-			// Retrieve terms and continue if empty
-			$terms = $this->terms($taxonomy, false);
-			if ( is_null($terms) ) continue;
+    foreach($taxonomies as $index => $taxonomy) {
+      // Retrieve terms and continue if empty
+      $terms = $this->terms($taxonomy, false);
+      if ( is_null($terms) ) continue;
 
-			// Store the ids into an array
-			$term_ids = array();
-			foreach($terms as $term)
-				$term_ids[] = $term->term_id;
+      // Store the ids into an array
+      $term_ids = array();
+      foreach($terms as $term)
+        $term_ids[] = $term->term_id;
 
-			$args['tax_query'][] = array(
-				'taxonomy'	=> $taxonomy,
-				'field'		=> 'id',
-				'terms'		=> $term_ids
-			);
-		}
+      $args['tax_query'][] = array(
+        'taxonomy'  => $taxonomy,
+        'field'    => 'id',
+        'terms'    => $term_ids
+      );
+    }
 
-		if ( count($args['tax_query']) === 1 )
+    if ( count($args['tax_query']) === 1 )
       return;
 
     return self::get_controllers($args);
-	}
+  }
 
   /**
    * Returns whether provided id belongs to post type
@@ -425,8 +419,8 @@ class Post extends Controller {
    * Returns the content with standard filters applied
    * @return string
    */
-	public function content() {
-		return apply_filters('the_content', $this->content);
+  public function content() {
+    return apply_filters('the_content', $this->content);
   }
 
   /**
@@ -445,9 +439,9 @@ class Post extends Controller {
    * @param boolean $apply_filters (default: true)
    * @return string
    */
-	public function excerpt($word_count = 40, $ellipsis = '...', $apply_filters = true) {
-		if ( !empty($this->excerpt) )
-			return ($apply_filters) ? apply_filters('the_excerpt', $this->excerpt) : $this->excerpt;
+  public function excerpt($word_count = 40, $ellipsis = '...', $apply_filters = true) {
+    if ( !empty($this->excerpt) )
+      return ($apply_filters) ? apply_filters('the_excerpt', $this->excerpt) : $this->excerpt;
 
     if ( $apply_filters ) {
       remove_filter('the_excerpt', 'wpautop');
@@ -466,7 +460,7 @@ class Post extends Controller {
       $content = $this->content;
 
     return $word_count ? wp_trim_words($content, $word_count, $ellipsis) : $content;
-	}
+  }
 
   /**
    * Retrieves random posts
@@ -507,27 +501,27 @@ class Post extends Controller {
    * @param string $taxonomy
    * @return array
    */
-	protected static function get_categorized_posts($taxonomy) {
+  protected static function get_categorized_posts($taxonomy) {
     $categorized_posts = array();
     $terms = get_terms($taxonomy);
 
     foreach($terms as $term) {
-    	$posts = get_posts(array(
-    		'post_type'		=> static::$post_type,
-    		'numberposts'	=> -1,
-    		'tax_query'		=> array(
-    			array(
-    				'taxonomy'		=> $taxonomy,
-    				'field'			=> 'id',
-    				'terms'			=> $term->term_id
-    			)
-    		)
-    	));
+      $posts = get_posts(array(
+        'post_type'    => static::$post_type,
+        'numberposts'  => -1,
+        'tax_query'    => array(
+          array(
+            'taxonomy'    => $taxonomy,
+            'field'      => 'id',
+            'terms'      => $term->term_id
+          )
+        )
+      ));
 
       foreach($posts as $post)
         $term->posts[] = self::get_controller($post);
 
-    	$categorized_posts[] = $term;
+      $categorized_posts[] = $term;
     }
 
     return $categorized_posts;

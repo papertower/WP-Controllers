@@ -1,13 +1,10 @@
 <?php
 
 class User extends Controller {
-  const VERSION = '1.0.0';
   const CACHE_GROUP = 'usercontroller';
 
   protected
     $user;
-
-  protected function __construct() {}
 
   public static function _construct() {
     if ( __CLASS__ === get_called_class() ) {
@@ -62,8 +59,7 @@ class User extends Controller {
       if ( false !== $controller ) return $controller;
     }
 
-    $controller = new self();
-    $controller->load_properties($user, $options['load_standard_meta']);
+    $controller = new self($user, $options['load_standard_meta']);
 
     if ( $options['load_meta'] ) $controller->meta();
 
@@ -100,12 +96,7 @@ class User extends Controller {
     wp_cache_delete($user->data->user_login, self::CACHE_GROUP . '_login');
   }
 
-  public function meta() {
-    if ( is_object($this->meta) ) return $this->meta;
-    return $this->_meta(get_user_meta($this->id));
-  }
-
-  private function load_properties($user, $load_extra) {
+  protected function __construct($user, $load_extra) {
     $this->user = $user;
 
     $this->id               =& $user->ID;
@@ -126,7 +117,11 @@ class User extends Controller {
       $this->last_name        = $user->last_name;
       $this->description      = $user->description;
     }
+  }
 
+  public function meta() {
+    if ( is_object($this->meta) ) return $this->meta;
+    return $this->_meta(get_user_meta($this->id));
   }
 
   public function registered($format) {
@@ -164,7 +159,7 @@ class User extends Controller {
 
     $authors = array();
     foreach($author_ids as $index => $id)
-      $authors[] = new self($id);
+      $authors[] = self::get_controller($id);
 
     return $authors;
   }
