@@ -45,13 +45,13 @@ The best thing to do from here would be to look through the controllers and chec
 $Post->terms($taxonomies)
 ```
 
- returns all the term controllers for that post. Another one is
+returns all the term controllers for that post. Another one is
 
- ```
- $Post->excerpt(50)
- ```
+```
+$Post->excerpt(50)
+```
 
- which would return either all the excerpt (if used and has actual content) or the first 50 (or however many you want) **words** of the content, with all the shortcodes and tags stripped.
+which would return either all the excerpt (if used and has actual content) or the first 50 (or however many you want) **words** of the content, with all the shortcodes and tags stripped.
 
 #### Get Involved
 Have an idea? Make a pull request!
