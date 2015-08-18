@@ -21,13 +21,37 @@ include 'controllers/autoload.php';
 ```
 
 ##### Get a controller
-Easy as that. Now, to get a controller (e.g. post), use the `get_post_controller` function. Simply pass a post id, slug, or object. Don't worry about type casting, it will figure itself out. Or, if you're inside a post single template (or page), just call `$Post = get_post_controller()` with no arguments and it will return the controller for the active post.
+Easy as that. Now, to get a controller (e.g. post), use the `get_post_controller` function. Simply pass a post id, slug, or object. Don't worry about type casting, it will figure itself out. Or, if you're inside a post single template (or page), just call
+```
+$Post = get_post_controller()
+```
+with no arguments and it will return the controller for the active post.
 
 ##### Use the controller
-Once you have the controller, all the standard properties will be available minus the 'post_' prefix. So post_type, for example, would be `$Post->type`. Also, all the meta will be automatically loaded (and object cached) within the meta property. So, if you have a post meta with the key 'sub_title', then you would get it with `$Post->meta->sub_title`. No more get_post_meta.
+Once you have the controller, all the standard properties will be available minus the 'post_' prefix. So post_type, for example, would be
+```
+$Post->type
+```
+Also, all the meta will be automatically loaded (and object cached) within the meta property. So, if you have a post meta with the key 'sub_title', then you would get it with
+
+```
+$Post->meta->sub_title
+```
 
 ##### Familiarize yourself
-The best thing to do from here would be to look through the controllers and check out the available functions. There's some pretty cool ones and they keep being added. For example, `$Post->terms($taxonomies)` returns all the term controllers for that post. Another one is `$Post->excerpt(50)` which would return either all the excerpt (if used and has actual content) or the first 50 (or however many you want) **words** of the content, with all the shortcodes and tags stripped.
+The best thing to do from here would be to look through the controllers and check out the available functions. There's some pretty cool ones and they keep being added. For example,
+
+```
+$Post->terms($taxonomies)
+```
+
+ returns all the term controllers for that post. Another one is
+
+ ```
+ $Post->excerpt(50)
+ ```
+
+ which would return either all the excerpt (if used and has actual content) or the first 50 (or however many you want) **words** of the content, with all the shortcodes and tags stripped.
 
 #### Get Involved
 Have an idea? Make a pull request!
