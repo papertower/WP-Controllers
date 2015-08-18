@@ -336,7 +336,7 @@ class Post extends Controller {
    * @param array options (optional)
    * @return array of controllers
    */
-  protected function related_posts($post_type, $taxonomies, $options = null) {
+  public function related_posts($post_type, $taxonomies, $options = null) {
     $options = wp_parse_args( $options, array(
       'count'    => -1,
       'meta_query'=> null
@@ -379,29 +379,6 @@ class Post extends Controller {
       return;
 
     return self::get_controllers($args);
-  }
-
-  /**
-   * Returns whether provided id belongs to post type
-   * @param integer $id
-   * @param string $type
-   * @return boolean
-   */
-  public static function is_post($id, $type = 'any') {
-    $args = array(
-      'suppress_filters'=> false
-      ,'post_type'      => $type
-      ,'fields'         => 'ids'
-      ,'posts_per_page' => 1
-    );
-
-    if ( is_numeric($id) ) {
-      $args['post__in'] = array($id);
-    } else {
-      $args['name'] = $id;
-    }
-
-    return ( !empty(get_posts($args)) );
   }
 
   /**
@@ -463,39 +440,6 @@ class Post extends Controller {
   }
 
   /**
-   * Retrieves random posts
-   *
-   * Retrieves a number of randomized posts. Use this instead of the
-   * ORDER BY RAND method, as that can have tremendous overhead
-   * @since 0.5.0
-   * @param int           $count      the number of posts to return randomized
-   * @param array|string  $post_type  (optional) post type name or array thereof
-   * @return object                   array of controllers or empty array
-   */
-  public static function random_posts($count = -1, $post_type = null) {
-    $post_type = ( $post_type ) ? $post_type : static::$post_type;
-
-    $ids = get_posts(array(
-      'post_type'   => $post_type,
-      'numberposts' => -1,
-      'fields'      => 'ids'
-    ));
-
-    if ( empty($ids) ) return array();
-
-    shuffle($ids);
-
-    if ( $count !== -1 )
-      $ids = array_slice($ids, 0, $count);
-
-    return self::get_controllers(array(
-      'post_type'   => $post_type,
-      'numberposts' => $count,
-      'post__in'    => $ids
-    ));
-  }
-
-  /**
    * Returns post controllers organized by terms
    * @since 0.1.0
    * @param string $taxonomy
@@ -551,7 +495,61 @@ class Post extends Controller {
     ));
   }
 
-};
+  /**
+   * Retrieves random posts
+   *
+   * Retrieves a number of randomized posts. Use this instead of the
+   * ORDER BY RAND method, as that can have tremendous overhead
+   * @since 0.5.0
+   * @param int           $count      the number of posts to return randomized
+   * @param array|string  $post_type  (optional) post type name or array thereof
+   * @return object                   array of controllers or empty array
+   */
+  public static function random_posts($count = -1, $post_type = null) {
+    $post_type = ( $post_type ) ? $post_type : static::$post_type;
 
+    $ids = get_posts(array(
+      'post_type'   => $post_type,
+      'numberposts' => -1,
+      'fields'      => 'ids'
+    ));
+
+    if ( empty($ids) ) return array();
+
+    shuffle($ids);
+
+    if ( $count !== -1 )
+      $ids = array_slice($ids, 0, $count);
+
+    return self::get_controllers(array(
+      'post_type'   => $post_type,
+      'numberposts' => $count,
+      'post__in'    => $ids
+    ));
+  }
+
+  /**
+   * Returns whether provided id belongs to post type
+   * @param integer $id
+   * @param string $type
+   * @return boolean
+   */
+  public static function is_post($id, $type = 'any') {
+    $args = array(
+      'suppress_filters'=> false
+      ,'post_type'      => $type
+      ,'fields'         => 'ids'
+      ,'posts_per_page' => 1
+    );
+
+    if ( is_numeric($id) ) {
+      $args['post__in'] = array($id);
+    } else {
+      $args['name'] = $id;
+    }
+
+    return ( !empty(get_posts($args)) );
+  }
+};
 
 ?>
