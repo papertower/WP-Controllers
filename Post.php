@@ -222,6 +222,45 @@ class Post extends Controller {
   }
 
   /**
+   * Returns adjacent post controller.
+   * @see https://codex.wordpress.org/Function_Reference/get_adjacent_post
+   * @return controller|false Returns controller if available, and false if no post
+   */
+  protected function adjacent_post($same_term = false, $excluded_terms = array(), $previous = true, $taxonomy = 'category') {
+    $date_type = $previous ? 'before' : 'after';
+
+    $arguments = array(
+      'post_type'   => $this->type,
+      'numberposts' => 1,
+      'date_query'  => array(
+        array(
+          $date_type    => $this->date('timestamp')
+        )
+      )
+    );
+
+    if ( $taxonomy && $same_term ) {
+      $terms = get_terms($taxonomy, array(
+        'fields'  => 'ids',
+        'exclude' => $excluded_terms
+      ));
+
+      if ( ! (empty($terms) || is_wp_error($terms) ) ) {
+        $arguments['tax_query'] = array(
+          array(
+            'taxonomy'  => $taxonomy,
+            'field'     => 'term_id',
+            'terms'     => $terms
+          )
+        );
+      }
+    }
+
+    $posts = get_posts($arguments);
+    return isset($posts[0]) ? self::get_controller($posts[0]) : false;
+  }
+
+  /**
    * Loads all the post meta to the object.
    * @since 0.7.0 Reconciled meta prefix handling to Controller class
    */
@@ -292,8 +331,7 @@ class Post extends Controller {
    * @return null|object
    */
   public function next_post($same_term = false, $excluded_terms = array(), $taxonomy = 'category') {
-    $post = get_adjacent_post($same_term, $excluded_terms, false, $taxonomy);
-    return empty($post) ? null : self::get_controller($post);
+    return $this->adjacent_post($same_term, $excluded_terms, false, $taxonomy);
   }
 
   /**
@@ -304,8 +342,7 @@ class Post extends Controller {
    * @return null|object
    */
   public function previous_post($same_term = false, $excluded_terms = array(), $taxonomy = 'category') {
-    $post = get_adjacent_post($same_term, $excluded_terms, true, $taxonomy);
-    return empty($post) ? null : self::get_controller($post);
+    return $this->adjacent_post($same_term, $excluded_terms, true, $taxonomy);
   }
 
   /**
