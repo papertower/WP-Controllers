@@ -12,3 +12,26 @@ Ultimately, WordPress is a database-driven PHP framework. Nothing more, nothing 
 
 #### In a nutshell
 These classes make it possible to feel like you're working in PHP while enjoying all the benefits of WordPress. You lose nothing by using them, and it doesn't break *anything* in Wordpress. You're free to use as much or as little of these as you'd like. If you are (or aspire to be) a PHP developer, then you'll probably really like using this; if not, it may overwhelm you, and that's no problem.
+
+#### How to use it
+##### Include it
+Currently, simply download and drop this into your plugin or theme, then from your plugin file or theme functions.php, include the autoload.php file. So, assuming you dropped the controllers directory right inside your theme, you would add the following line to your functions.php:
+```
+include 'controllers/autoload.php';
+```
+
+##### Get a controller
+Easy as that. Now, to get a controller (e.g. post), use the `get_post_controller` function. Simply pass a post id, slug, or object. Don't worry about type casting, it will figure itself out. Or, if you're inside a post single template (or page), just call `$Post = get_post_controller()` with no arguments and it will return the controller for the active post.
+
+##### Use the controller
+Once you have the controller, all the standard properties will be available minus the 'post_' prefix. So post_type, for example, would be `$Post->type`. Also, all the meta will be automatically loaded (and object cached) within the meta property. So, if you have a post meta with the key 'sub_title', then you would get it with `$Post->meta->sub_title`. No more get_post_meta.
+
+##### Familiarize yourself
+The best thing to do from here would be to look through the controllers and check out the available functions. There's some pretty cool ones and they keep being added. For example, `$Post->terms($taxonomies)` returns all the term controllers for that post. Another one is `$Post->excerpt(50)` which would return either all the excerpt (if used and has actual content) or the first 50 (or however many you want) **words** of the content, with all the shortcodes and tags stripped.
+
+#### Get Involved
+Have an idea? Make a pull request!
+
+Have a problem or question? Make an issue!
+
+This isn't just to make WordPress more object-oriented, it's also to make development faster, less buggy, and more efficient. It's a fantastic way to fulfill the [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) principal.
