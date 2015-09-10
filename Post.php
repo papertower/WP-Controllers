@@ -232,9 +232,11 @@ class Post extends Controller {
     $arguments = array(
       'post_type'   => $this->type,
       'numberposts' => 1,
+      'order'       => $previous ? 'DESC' : 'ASC',
+      'post__not_in'=> array($this->id),
       'date_query'  => array(
         array(
-          $date_type    => $this->date('timestamp')
+          $date_type    => $this->date('F j, Y')
         )
       )
     );
