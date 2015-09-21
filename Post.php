@@ -147,9 +147,6 @@ class Post extends Controller {
       }
     }
 
-    if ( isset(static::$post_type) && !isset(self::$post_types[static::$post_type]) )
-      self::$post_types[static::$post_type] = $static_class;
-
     // Add page template to list
     if ( isset(static::$page_template) ) {
       $templates = is_array(static::$page_template) ? static::$page_template : array(static::$page_template);
