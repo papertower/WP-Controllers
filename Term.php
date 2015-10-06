@@ -3,7 +3,7 @@
  * @version 0.7.0
  * @author Jason Adams <jason.the.adams@gmail.com>
  */
-class Term extends Controller {
+class Term {
   const CACHE_GROUP = 'termcontroller';
 
   public
@@ -28,10 +28,6 @@ class Term extends Controller {
    * @return Term
    */
   public static function get_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
-    $options = wp_parse_args($options, array(
-      'load_meta'         => true,
-    ));
-
     if ( is_object($key) ) {
       $term = wp_cache_get($key->term_id, self::CACHE_GROUP);
       if ( false !== $term ) return $term;
@@ -56,8 +52,6 @@ class Term extends Controller {
     }
 
     $controller = new self($term);
-
-    if ( $options['load_meta'] ) $controller->meta();
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->slug, $controller->id, self::CACHE_GROUP . '_' . 'slug', MINUTE_IN_SECONDS * 10);
@@ -138,11 +132,9 @@ class Term extends Controller {
     $this->id           =& $this->term_id;
     $this->group        =& $this->term_group;
     $this->taxonomy_id  =& $this->term_taxonomy_id;
-  }
 
-  public function meta() {
-    if ( is_object($this->meta) ) return $this->meta;
-    return $this->_meta(get_term_custom($this->id));
+    // Meta class
+    $this->meta = new Meta($this->id, 'term');
   }
 
   public function url() {
@@ -173,10 +165,4 @@ class Term extends Controller {
   }
 
 };
-
-if ( !function_exists('get_term_controller') ) {
-  function get_term_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
-    return Term::get_controller($key, $taxonomy, $field, $options);
-  }
-}
 ?>

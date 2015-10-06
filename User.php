@@ -1,6 +1,6 @@
 <?php
 
-class User extends Controller {
+class User {
   const CACHE_GROUP = 'usercontroller';
 
   protected
@@ -23,7 +23,6 @@ class User extends Controller {
    */
   public static function get_controller($key = null, $field = 'id', $options = array()) {
     $options = wp_parse_args($options, array(
-      'load_meta'         => true,
       'load_standard_meta'=> true
     ));
 
@@ -60,8 +59,6 @@ class User extends Controller {
     }
 
     $controller = new self($user, $options['load_standard_meta']);
-
-    if ( $options['load_meta'] ) $controller->meta();
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->email, $controller->id, self::CACHE_GROUP . '_email', MINUTE_IN_SECONDS * 10);
@@ -117,11 +114,9 @@ class User extends Controller {
       $this->last_name        = $user->last_name;
       $this->description      = $user->description;
     }
-  }
 
-  public function meta() {
-    if ( is_object($this->meta) ) return $this->meta;
-    return $this->_meta(get_user_meta($this->id));
+    // Meta class
+    $this->meta = new Meta($this->id, 'post');
   }
 
   public function registered($format) {

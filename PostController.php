@@ -12,7 +12,7 @@
  * @version 0.7.0
  * @author Jason Adams <jason.the.adams@gmail.com>
  */
-class PostController extends Controller {
+class PostController {
   /**
    * @var string $post_type the post type this controller is intended for
    * @var array $post_types post_type => controller
@@ -37,10 +37,6 @@ class PostController extends Controller {
    * @return Controller
    */
   public static function get_controller($key = null, $options = array()) {
-    extract(wp_parse_args($options, array(
-      'load_meta'         => true,
-    )));
-
     if ( is_null($key) ) {
       global $post;
       $key = $post;
@@ -97,8 +93,6 @@ class PostController extends Controller {
         ? new self::$post_types[$_post->post_type] ($_post)
         : new self ($_post);
     }
-
-    if ( $load_meta ) $controller->meta();
 
     wp_cache_set($controller->slug, $controller->id, 'postcontroller_slug', MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->id, $controller, 'postcontroller', MINUTE_IN_SECONDS * 10);
@@ -232,6 +226,9 @@ class PostController extends Controller {
     $this->date_gmt     =& $this->post->post_date_gmt;
     $this->modified     =& $this->post->post_modified;
     $this->modified_gmt =& $this->post->post_modified_gmt;
+
+    // Meta class
+    $this->meta = new Meta($this->id, 'post');
   }
 
   /**
@@ -273,15 +270,6 @@ class PostController extends Controller {
 
     $posts = get_posts($arguments);
     return isset($posts[0]) ? self::get_controller($posts[0]) : false;
-  }
-
-  /**
-   * Loads all the post meta to the object.
-   * @since 0.7.0 Reconciled meta prefix handling to Controller class
-   */
-  public function meta() {
-    if ( is_object($this->meta) ) return $this->meta;
-    return $this->_meta(get_post_custom($this->id));
   }
 
   /**
