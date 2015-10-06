@@ -1,6 +1,6 @@
 <?php
 
-class Attachment extends Post {
+class Attachment extends PostController {
   protected static
     $post_type  = 'attachment';
 

@@ -27,24 +27,24 @@ foreach($_files as $_file) {
 
 if ( !function_exists('get_post_controller') ) {
   /**
-   * Global function to call Post::get_controller
-   * @see Post::get_controller
+   * Global function to call PostController::get_controller
+   * @see PostController::get_controller
    */
-  function get_post_controller($key = null, $options = array()) { return Post::get_controller($key, $options); }
+  function get_post_controller($key = null, $options = array()) { return PostController::get_controller($key, $options); }
 }
 
 if ( !function_exists('get_post_controllers') ) {
   /**
-   * Global function to call Post::get_controllers
-   * @see Post::get_controllers
+   * Global function to call PostController::get_controllers
+   * @see PostController::get_controllers
    */
-  function get_post_controllers($args) { return Post::get_controllers($args); }
+  function get_post_controllers($args) { return PostController::get_controllers($args); }
 }
 
 if ( !function_exists('get_page_controller') ) {
   /**
    * Global function to call Page::get_controller
-   * @see Post::get_controller
+   * @see PostController::get_controller
    */
   function get_page_controller($key = null, $options = array()) { return Page::get_controller($key, $options); }
 }
@@ -52,7 +52,7 @@ if ( !function_exists('get_page_controller') ) {
 if ( !function_exists('get_page_controllers') ) {
   /**
    * Global function to call Page::get_controllers
-   * @see Post::get_controllers
+   * @see PostController::get_controllers
    */
   function get_page_controllers($args) { return Page::get_controllers($args); }
 }
@@ -60,7 +60,7 @@ if ( !function_exists('get_page_controllers') ) {
 if ( !function_exists('get_picture_controller') ) {
   /**
    * Global function to call Picture::get_controllers
-   * @see Post::get_controller
+   * @see PostController::get_controller
    */
   function get_picture_controller($key = null, $options = array()) { return Picture::get_controller($key, $options); }
 }

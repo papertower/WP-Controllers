@@ -1,6 +1,6 @@
 <?php
 
-class Page extends Post {
+class Page extends PostController {
   protected static
     $post_type = 'page';
 
