@@ -112,10 +112,26 @@ class PostController extends Controller {
    * @param array $args Either an array of WP_Post objects or get_posts arguments
    * @return array
    */
-  public static function get_controllers($args) {
-    // Retrieve posts if arguments
-    $posts = ( isset($args[0]) && is_object($args[0]) )
-      ? $args : get_posts($args);
+  public static function get_controllers($args = null) {
+    if ( is_null($args) ) {
+      // Retrieve archive posts
+      global $wp_query;
+      if ( isset($wp_query->posts) ) {
+        $posts = $wp_query->posts;
+      } else {
+        return new WP_Error('no_posts_found', 'No posts were found in the wp_query. This must be used within a single or archive template.');
+      }
+
+    } elseif ( isset($args[0]) && is_object($args[0]) ) {
+      // Turn array of WP_Posts into controllers
+      $posts = $args;
+
+    } else {
+      // Retrieve posts from get_posts arguments
+      if ( !isset($args['suppress_filters']) ) $args['suppress_filters'] = false;
+      $posts = get_posts($args);
+
+    }
 
     $controllers = array();
     foreach($posts as $post) {

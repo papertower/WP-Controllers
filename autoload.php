@@ -38,7 +38,7 @@ if ( !function_exists('get_post_controllers') ) {
    * Global function to call PostController::get_controllers
    * @see PostController::get_controllers
    */
-  function get_post_controllers($args) { return PostController::get_controllers($args); }
+  function get_post_controllers($args = null) { return PostController::get_controllers($args); }
 }
 
 if ( !function_exists('get_page_controller') ) {
@@ -54,7 +54,7 @@ if ( !function_exists('get_page_controllers') ) {
    * Global function to call Page::get_controllers
    * @see PostController::get_controllers
    */
-  function get_page_controllers($args) { return Page::get_controllers($args); }
+  function get_page_controllers($args = null) { return Page::get_controllers($args); }
 }
 
 if ( !function_exists('get_picture_controller') ) {
