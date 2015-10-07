@@ -34,7 +34,7 @@ class Meta {
   public function __get($name) {
     $this->get_meta($name);
 
-    return count($this->data[$name]) === 1
+    return is_array($this->data[$name]) && count($this->data[$name]) === 1
       ? $this->data[$name][0]
       : $this->data[$name];
   }
@@ -45,14 +45,6 @@ class Meta {
 
   public function __unset($name) {
     unset($this->data[$name]);
-  }
-
-  private function single($key) {
-    return $this->data[$key][0];
-  }
-
-  private function all($key) {
-    return $this->data[$key];
   }
 
   private function get_meta($key, $single = false) {
@@ -70,5 +62,31 @@ class Meta {
         break;
     }
   }
+
+  // Meta Functions
+  private function single($value) {
+    return isset($value[0]) ? $value[0] : null;
+  }
+
+  private function all($key) {
+    return $this->data[$key];
+  }
+
+  private function images($values) {
+    if ( is_array($values) ) {
+      return get_picture_controllers($values);
+    } else {
+      return $values;
+    }
+  }
+
+  private function image($values) {
+    if ( is_array($values) && isset($values[0]) ) {
+      return get_picture_controller($values[0]);
+    } else {
+      return $values;
+    }
+  }
+
 }
 ?>
