@@ -10,6 +10,7 @@ class Meta {
     $this->object_type = $type;
   }
 
+  // Magic methods
   public function __call($name, $arguments) {
     $this->get_meta($name);
 
@@ -47,23 +48,35 @@ class Meta {
     unset($this->data[$name]);
   }
 
-  private function get_meta($key, $single = false) {
-    if ( isset($this->data[$key]) ) return;
+  /**
+   * Used to retrieve meta with a key not permitted by PHP
+   * For example, if a key is 'my-field', the hyphen is not set
+   * @param string $key key used in the database
+   * @param string $name name to store under for future retrieval
+   * @return mixed
+   */
+  public function store($key, $name) {
+    $this->get_meta($key, $name);
+  }
+
+  private function get_meta($key, $name = null, $single = false) {
+    $name = is_null($name) ? $key : $name;
+    if ( isset($this->data[$name]) ) return;
 
     switch ($this->object_type) {
       case 'post':
       case 'user':
       case 'comment':
-        $this->data[$key] =  get_metadata($this->object_type, $this->object_id, $key, $single);
+        $this->data[$name] =  get_metadata($this->object_type, $this->object_id, $key, $single);
         break;
 
       case 'term':
-        $this->data[$key] = get_term_meta($this->object_id, $key, $single);
+        $this->data[$name] = get_term_meta($this->object_id, $key, $single);
         break;
     }
   }
 
-  // Meta Functions
+  // Meta functions
   private function single($value) {
     return isset($value[0]) ? $value[0] : null;
   }
