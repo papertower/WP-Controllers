@@ -33,7 +33,10 @@ class Meta {
 
   public function __get($name) {
     $this->get_meta($name);
-    return $this->data[$name];
+
+    return count($this->data[$name]) === 1
+      ? $this->data[$name][0]
+      : $this->data[$name];
   }
 
   public function __isset($name) {
