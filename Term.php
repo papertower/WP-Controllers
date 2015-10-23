@@ -4,13 +4,43 @@
  * @author Jason Adams <jason.the.adams@gmail.com>
  */
 class Term {
+
+  /**
+   *
+   */
   const CACHE_GROUP = 'termcontroller';
 
+  /**
+   * @var object $term
+   */
+  private
+    $term;
+
+  /**
+   * @var int $id
+   * @var string $slug
+   * @var string $name
+   * @var string $description
+   * @var string $group
+   * @var string $taxonomy
+   * @var int $taxonomy_id
+   * @var int $count
+   * @var Meta $meta
+   */
   public
     $id,
+    $slug,
+    $name,
+    $description,
     $group,
-    $taxonomy_id;
+    $taxonomy,
+    $taxonomy_id,
+    $count,
+    $meta;
 
+  /**
+   *
+   */
   public static function _construct() {
     if ( __CLASS__ === get_called_class() ) {
       add_filter('edit_term', array(__CLASS__, 'edited_term'), 10, 3);
@@ -93,7 +123,7 @@ class Term {
     if ( empty($ids) ) return array();
 
     global $wpdb;
-    $ids = implode(',', $ids);
+    $ids = array_map( 'intval', implode(',', $ids) );
 
     $query = "
       SELECT DISTINCT t.term_id, t.name, t.slug, t.term_group
@@ -105,44 +135,63 @@ class Term {
       WHERE rel.object_id IN ($ids);
     ";
 
+
     switch($fields) {
     case 'raw':
-      return get_results($query, OBJECT_K);
+      return $wpdb->get_results($query, OBJECT_K);
     case 'ids':
-      return get_col($query);
+      return $wpdb->get_col($query);
     default:
-      $results = get_results($query);
+      $results = $wpdb->get_results($query);
       foreach($results as &$result)
         $result = self::get_controller($result);
       return $results;
     }
   }
 
+  /**
+   * @param Term|object|mixed $object
+   *
+   * @return bool
+   */
   private static function check_object($object) {
     return isset($object->term_id);
   }
 
+  /**
+   * Term constructor.
+   *
+   * @param object $term
+   */
   protected function __construct($term) {
     // Load all the term properties
-    foreach($term as $key => $value)
+    foreach(get_class_vars($term) as $key => $value)
       $this->$key = $value;
 
     // Extra properties
     $this->term         =& $term;
-    $this->id           =& $this->term_id;
-    $this->group        =& $this->term_group;
-    $this->taxonomy_id  =& $this->term_taxonomy_id;
+    $this->id           =& $term->term_id;
+    $this->group        =& $term->term_group;
+    $this->taxonomy_id  =& $term->term_taxonomy_id;
 
     // Meta class
     $this->meta = new Meta($this->id, 'term');
   }
 
+  /**
+   * @return string|WP_Error
+   */
   public function url() {
     return isset($this->url) ? $this->url : ( $this->url = get_term_link($this->term) );
   }
 
+  /**
+   * @param $post_type
+   * @return
+   */
+
   public function oldest_post($post_type) {
-    if ( !$this->count ) return;
+    if ( !$this->count ) return null;
 
     $Post = get_post_controllers(array(
       'post_type'   => $post_type,
@@ -152,7 +201,7 @@ class Term {
       'tax_query'   => array(
         array(
           'taxonomy'    => $this->taxonomy,
-          'terms'       => $this->term_id
+          'terms'       => $this->id
         )
       )
     ));
@@ -165,4 +214,3 @@ class Term {
   }
 
 };
-?>

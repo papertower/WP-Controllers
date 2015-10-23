@@ -1,16 +1,37 @@
 <?php
+
+/**
+ * Class Meta
+ */
 class Meta {
+
+  /**
+   * @var int $object_id
+   * @var string $object_type
+   * @var array $data
+   */
   private
     $object_id,
     $object_type,
     $data = array();
 
+  /**
+   * Meta constructor.
+   *
+   * @param int $id
+   * @param string $type
+   */
   public function __construct($id, $type) {
     $this->object_id = $id;
     $this->object_type = $type;
   }
 
-  // Magic methods
+  /**
+   * @param string $name
+   * @param array $arguments
+   *
+   * @return mixed
+   */
   public function __call($name, $arguments) {
     $this->get_meta($name);
 
@@ -32,6 +53,11 @@ class Meta {
     }
   }
 
+  /**
+   * @param string $name
+   *
+   * @return mixed
+   */
   public function __get($name) {
     $this->get_meta($name);
 
@@ -40,10 +66,18 @@ class Meta {
       : $this->data[$name];
   }
 
+  /**
+   * @param string $name
+   *
+   * @return bool
+   */
   public function __isset($name) {
     return isset($this->data[$name]);
   }
 
+  /**
+   * @param string $name
+   */
   public function __unset($name) {
     unset($this->data[$name]);
   }
@@ -59,6 +93,11 @@ class Meta {
     $this->get_meta($key, $name);
   }
 
+  /**
+   * @param string $key
+   * @param null $name
+   * @param bool|false $single
+   */
   private function get_meta($key, $name = null, $single = false) {
     $name = is_null($name) ? $key : $name;
     if ( isset($this->data[$name]) ) return;
@@ -76,15 +115,29 @@ class Meta {
     }
   }
 
-  // Meta functions
+  /**
+   * @param array $value
+   *
+   * @return mixed|null
+   */
   private function single($value) {
     return isset($value[0]) ? $value[0] : null;
   }
 
+  /**
+   * @param string $key
+   *
+   * @return mixed|null
+   */
   private function all($key) {
     return $this->data[$key];
   }
 
+  /**
+   * @param array $values
+   *
+   * @return array
+   */
   private function images($values) {
     if ( is_array($values) ) {
       return get_picture_controllers($values);
@@ -93,6 +146,11 @@ class Meta {
     }
   }
 
+  /**
+   * @param array $values
+   *
+   * @return PostController
+   */
   private function image($values) {
     if ( is_array($values) && isset($values[0]) ) {
       return get_picture_controller($values[0]);
@@ -102,4 +160,4 @@ class Meta {
   }
 
 }
-?>
+
