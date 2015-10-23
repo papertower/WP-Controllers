@@ -165,7 +165,7 @@ class Term {
    */
   protected function __construct($term) {
     // Load all the term properties
-    foreach(get_class_vars($term) as $key => $value)
+    foreach(get_object_vars($term) as $key => $value)
       $this->$key = $value;
 
     // Extra properties
