@@ -1,11 +1,56 @@
 <?php
 
+/**
+ * Class User
+ */
 class User {
+
+  /**
+   *
+   */
   const CACHE_GROUP = 'usercontroller';
 
+  /**
+   * @var User $user
+   */
   protected
     $user;
 
+  /**
+   * @var int    $id
+   * @var array  $capabilities
+   * @var array  $roles
+   * @var array  $all_capabilities
+   * @var string $display_name
+   * @var string $nice_name
+   * @var string $login
+   * @var string $email
+   * @var string $status
+   * @var bool   $registered
+   * @var string $first_name
+   * @var string $last_name
+   * @var string $description
+   * @var Meta   $meta
+   */
+  public
+    $id,
+    $capabilities,
+    $roles,
+    $all_capabilities,
+    $display_name,
+    $nice_name,
+    $login,
+    $email,
+    $status,
+    $registered,
+    $first_name,
+    $last_name,
+    $description,
+    $meta;
+
+  /**
+   *
+   */
   public static function _construct() {
     if ( __CLASS__ === get_called_class() ) {
       add_action('profile_update', array(__CLASS__, 'profile_update'), 10, 2);
@@ -68,6 +113,11 @@ class User {
     return $controller;
   }
 
+  /**
+   * @param WP_User[] $args
+   *
+   * @return User[]
+   */
   public static function get_controllers($args) {
     $users = get_users($args);
     $controllers = array();
@@ -77,15 +127,26 @@ class User {
     return $controllers;
   }
 
+  /**
+   * @param int $user_id
+   * @param WP_User $old_user
+   */
   public static function profile_update($user_id, $old_user) {
     self::clear_controller_cache($old_user);
   }
 
+  /**
+   * @param int $user_id
+   * @param int $reassign_id
+   */
   public static function delete_user($user_id, $reassign_id) {
     $user = get_user_by('id', $user_id);
     if ( $user ) self::clear_controller_cache($user);
   }
 
+  /**
+   * @param WP_User $user
+   */
   public static function clear_controller_cache($user) {
     wp_cache_delete($user->ID, self::CACHE_GROUP);
     wp_cache_delete($user->data->user_email, self::CACHE_GROUP . '_email');
@@ -93,6 +154,12 @@ class User {
     wp_cache_delete($user->data->user_login, self::CACHE_GROUP . '_login');
   }
 
+  /**
+   * User constructor.
+   *
+   * @param WP_User $user
+   * @param bool $load_extra
+   */
   protected function __construct($user, $load_extra) {
     $this->user = $user;
 
@@ -119,16 +186,29 @@ class User {
     $this->meta = new Meta($this->id, 'post');
   }
 
+  /**
+   * @param string $format
+   *
+   * @return bool|int|string
+   */
   public function registered($format) {
     return ( 'timestamp' === $format )
       ? strtotime($this->registered)
       : date($format, strtotime($this->registered));
   }
 
+  /**
+   * @return string
+   */
   public function posts_url() {
     return get_author_posts_url($this->id);
   }
 
+  /**
+   * @param string[]|string|null $post_types
+   *
+   * @return User[]
+   */
   public static function get_authors($post_types = null) {
     global $wpdb;
 
@@ -159,6 +239,12 @@ class User {
     return $authors;
   }
 
+  /**
+   * @param int[] $user_ids
+   * @param null $post_type
+   *
+   * @return array
+   */
   public static function get_users_post_count($user_ids, $post_type = null) {
     $user_ids = ( $user_ids ) ? $user_ids : get_users();
     $post_type = ( $post_type ) ? $post_type : get_post_types();
@@ -180,4 +266,3 @@ class User {
     }
   }
 };
-?>
