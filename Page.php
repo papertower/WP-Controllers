@@ -9,13 +9,28 @@ class Page extends PostController {
     $_children;
 
   /**
+   * Returns controllers for an array of posts or get_pages arguments
+   * @since 0.7.0
+   * @param array $args Either an array of WP_Post objects or get_pages arguments
+   * @return array
+   */
+  public static function get_controllers($args = null) {
+    if ( empty($args) || isset($args[0]) ) {
+      return parent::get_controllers($args);
+    }
+
+    $pages = get_pages($args);
+    return self::get_controllers($pages);
+  }
+
+  /**
    * Returns pages children, if any
    * @return array
    */
   public function children() {
     if ( $this->_children ) return $this->_children;
 
-    $this->_children = self::get_pages(array(
+    $this->_children = self::get_controllers(array(
       'hierarchical'  => false,
       'parent'        => $this->id,
       'post_status'        => 'publish,private'
@@ -33,33 +48,6 @@ class Page extends PostController {
     if ( $this->post->post_parent == 0 ) return;
 
     return $this->_parent = self::get_controller($this->post->post_parent);
-  }
-
-  /**
-   * Same as standard get_pages but returns as controllers
-   *
-   * @link http://codex.wordpress.org/Function_Reference/get_pages
-   * @param array $args
-   * @return array
-   */
-  public static function get_pages($args) {
-    $pages = get_pages($args);
-
-    foreach($pages as &$page)
-      $page = self::get_controller($page);
-
-    return $pages;
-  }
-
-  /**
-   * Returns only top-level pages
-   * @param array $args (optional)
-   */
-  public static function get_base_pages($args = array()) {
-    $args['hierarchical'] = false;
-    $args['parent'] = 0;
-
-    return self::get_pages($args);
   }
 
   /**
