@@ -35,13 +35,24 @@ class Meta {
   public function __get($name) {
     $this->get_meta($name);
 
-    return is_array($this->data[$name]) && count($this->data[$name]) === 1
-      ? $this->data[$name][0]
-      : $this->data[$name];
+    if ( is_array($this->data[$name]) ) {
+      switch(count($this->data[$name])) {
+        case 0: return '';
+        case 1: return $this->data[$name][0];
+        default: return $this->data[$name];
+      }
+    } else {
+      return $this->data[$name];
+    }
   }
 
   public function __isset($name) {
-    return isset($this->data[$name]);
+    if ( !empty($this->data[$name]) ) {
+      return true;
+    }
+
+    $this->get_meta($name);
+    return !empty($this->data[$name]);
   }
 
   public function __unset($name) {
@@ -81,13 +92,25 @@ class Meta {
     return isset($value[0]) ? $value[0] : null;
   }
 
-  private function all($key) {
-    return $this->data[$key];
+  private function all($value) {
+    return is_array($value) ? $value : array();
+  }
+
+  private function controllers($values) {
+    if ( is_array($values) ) {
+      if ( !empty($values[0]) ) {
+        return get_post_controllers($values);
+      } else {
+        return array();
+      }
+    } else {
+      return $values;
+    }
   }
 
   private function images($values) {
     if ( is_array($values) ) {
-      return get_picture_controllers($values);
+      return get_post_controllers($values);
     } else {
       return $values;
     }
@@ -95,10 +118,15 @@ class Meta {
 
   private function image($values) {
     if ( is_array($values) && isset($values[0]) ) {
-      return get_picture_controller($values[0]);
+      return get_post_controller($values[0]);
     } else {
       return $values;
     }
+  }
+
+  private function date($values, $format) {
+    if ( empty($values[0]) ) return '';
+    return date($format, strtotime($values[0]));
   }
 
 }
