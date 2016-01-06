@@ -41,30 +41,6 @@ if ( !function_exists('get_post_controllers') ) {
   function get_post_controllers($args = null) { return PostController::get_controllers($args); }
 }
 
-if ( !function_exists('get_page_controller') ) {
-  /**
-   * Global function to call Page::get_controller
-   * @see PostController::get_controller
-   */
-  function get_page_controller($key = null, $options = array()) { return Page::get_controller($key, $options); }
-}
-
-if ( !function_exists('get_page_controllers') ) {
-  /**
-   * Global function to call Page::get_controllers
-   * @see PostController::get_controllers
-   */
-  function get_page_controllers($args = null) { return Page::get_controllers($args); }
-}
-
-if ( !function_exists('get_picture_controller') ) {
-  /**
-   * Global function to call Picture::get_controllers
-   * @see PostController::get_controller
-   */
-  function get_picture_controller($key = null, $options = array()) { return Picture::get_controller($key, $options); }
-}
-
 if ( !function_exists('get_term_controller') ) {
   /**
    * Global function to call Term::get_controller
@@ -72,6 +48,16 @@ if ( !function_exists('get_term_controller') ) {
    */
   function get_term_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
     return Term::get_controller($key, $taxonomy, $field, $options);
+  }
+}
+
+if ( !function_exists('get_term_controllers') ) {
+  /**
+   * Global function to call Term::get_controller
+   * @see Term::get_controller
+   */
+  function get_term_controllers($args) {
+    return Term::get_controllers($args);
   }
 }
 
