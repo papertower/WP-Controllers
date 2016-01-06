@@ -1,9 +1,20 @@
 <?php
 
+/**
+ * Class Page
+ */
 class Page extends PostController {
+
+  /**
+   * @var string $post_type
+   */
   protected static
     $post_type = 'page';
 
+  /**
+   * @var PostController $_parent
+   * @var PostController[] $_children
+   */
   protected
     $_parent,
     $_children;
@@ -45,7 +56,7 @@ class Page extends PostController {
    */
   public function parent() {
     if ( $this->_parent ) return $this->_parent;
-    if ( $this->post->post_parent == 0 ) return;
+    if ( $this->post->post_parent == 0 ) return null;
 
     return $this->_parent = self::get_controller($this->post->post_parent);
   }
@@ -54,6 +65,7 @@ class Page extends PostController {
    * Returns pages of specified template(s)
    * @param array|string $templates
    * @param array $options (optional)
+   * @return array
    */
   public static function get_page_templates($templates, $options = array()) {
     $options = array_merge_recursive($options, array(
@@ -80,4 +92,3 @@ class Page extends PostController {
   }
 
 }
-?>

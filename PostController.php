@@ -21,7 +21,8 @@ class PostController {
   private static
     $post_type      = 'post',
     $post_types     = array(),
-    $page_templates = array();
+    $page_templates = array(),
+    $page_template  = null;
 
   /**
    * @var object $post WP_Post class
@@ -30,11 +31,48 @@ class PostController {
     $post;
 
   /**
+   * @var object $post WP_Post class
+   * @var int    id
+   * @var string slug
+   * @var string title
+   * @var string excerpt
+   * @var string content
+   * @var string status
+   * @var string type
+   * @var int    author
+   * @var int    menu_order
+   * @var int    comment_count
+   * @var string comment_status
+   * @var string date
+   * @var string date_gmt
+   * @var string modified
+   * @var string modified_gmt
+   * @var Meta   meta
+   */
+  public
+	$id,
+	$slug,
+	$title,
+	$excerpt,
+	$content,
+	$status,
+	$type,
+	$author,
+	$menu_order,
+	$comment_count,
+	$comment_status,
+	$date,
+	$date_gmt,
+	$modified,
+	$modified_gmt,
+    $meta;
+
+  /**
    * Retrieves the controller for the post type
    * @since 0.7.0
-   * @param string|int|object $post id, slug, or WP_Post object
+   * @param string|int|object $key post id, slug, or WP_Post object
    * @param array $options
-   * @return Controller
+   * @return PostController
    */
   public static function get_controller($key = null, $options = array()) {
     if ( is_null($key) ) {
@@ -233,8 +271,15 @@ class PostController {
 
   /**
    * Returns adjacent post controller.
+   *
    * @see https://codex.wordpress.org/Function_Reference/get_adjacent_post
-   * @return controller|false Returns controller if available, and false if no post
+   *
+   * @param bool|false $same_term
+   * @param array $excluded_terms
+   * @param bool|true $previous
+   * @param string $taxonomy
+   *
+   * @return PostController|false Returns controller if available, and false if no post
    */
   protected function adjacent_post($same_term = false, $excluded_terms = array(), $previous = true, $taxonomy = 'category') {
     $date_type = $previous ? 'before' : 'after';
@@ -373,8 +418,8 @@ class PostController {
    * @since 0.1.0
    * @param string $post_type
    * @param string|array $taxonomies
-   * @param array options (optional)
-   * @return array of controllers
+   * @param array $options (optional)
+   * @return array|null of controllers
    */
   public function related_posts($post_type, $taxonomies, $options = null) {
     $options = wp_parse_args( $options, array(
@@ -400,7 +445,7 @@ class PostController {
 
     foreach($taxonomies as $index => $taxonomy) {
       // Retrieve terms and continue if empty
-      $terms = $this->terms($taxonomy, false);
+      $terms = $this->terms($taxonomy);
       if ( is_null($terms) ) continue;
 
       // Store the ids into an array
@@ -416,7 +461,7 @@ class PostController {
     }
 
     if ( count($args['tax_query']) === 1 )
-      return;
+      return null;
 
     return self::get_controllers($args);
   }
@@ -424,12 +469,12 @@ class PostController {
   /**
    * Returns the featured image
    * @since 0.1.0
-   * @param string $size (optional)
+   * @param array $options (optional)
    * @return object|null
    */
   public function featured_image($options = array()) {
     $id = get_post_thumbnail_id($this->id);
-    if ( $id ) return get_picture_controller($id, $options);
+    return $id ? get_picture_controller( $id, $options ) : null;
   }
 
   /**
@@ -592,4 +637,3 @@ class PostController {
   }
 };
 
-?>
