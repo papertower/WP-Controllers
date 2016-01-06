@@ -32,10 +32,17 @@ Once you have the controller, all the standard properties will be available minu
 ```
 $Post->type
 ```
-Also, all the meta will be automatically loaded (and object cached) within the meta property. So, if you have a post meta with the key 'sub_title', then you would get it with
+Meta is accessed via the Meta class, which is automatically added to every controller. You can retrieve single or all values and apply functions to the results
 
 ```
+// Retrieves single meta
 $Post->meta->sub_title
+
+// All meta or empty array
+$Post->meta->all_movies('all')
+
+// The controllers for every value
+$Post->meta->related_posts('controllers')
 ```
 
 ##### Familiarize yourself
