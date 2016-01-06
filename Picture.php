@@ -3,7 +3,9 @@
 class Picture extends Attachment {
   protected static $post_type = 'image';
 
-  public $sizes = array();
+  public
+    $is_image = true,
+    $sizes = array();
 
   public function details($size) {
     if ( !isset($this->sizes[$size]) )
