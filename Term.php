@@ -61,6 +61,23 @@ class Term {
     return $controller;
   }
 
+  public static function get_controllers($args) {
+    if ( isset($args[0]) || empty($args) ) {
+      $terms = $args;
+    } else {
+      $taxonomies = $args['taxonomies'];
+      unset($args['taxonomies']);
+      $terms = get_terms($taxonomies, $args);
+    }
+
+    $Terms = array();
+    foreach($terms as $term) {
+      $Terms[] = self::get_controller($term);
+    }
+
+    return $Terms;
+  }
+
   public static function edit_term($term_id, $term_taxonomy_id, $taxonomy) {
     self::clear_controller_cache($term_id, $taxonomy);
   }
