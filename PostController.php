@@ -479,6 +479,7 @@ class PostController {
 
   /**
    * Returns the content with standard filters applied
+   * if password is required it returns the form
    * @return string
    */
   public function content() {
