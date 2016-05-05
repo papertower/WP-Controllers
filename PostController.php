@@ -482,7 +482,11 @@ class PostController {
    * @return string
    */
   public function content() {
-    return apply_filters('the_content', $this->content);
+    if ( post_password_required($this->post) ) {
+      return get_the_password_form($this->post);
+    } else {
+      return apply_filters('the_content', $this->content);
+    }
   }
 
   /**
@@ -636,4 +640,3 @@ class PostController {
     return ( !empty(get_posts($args)) );
   }
 };
-
