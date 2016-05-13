@@ -146,7 +146,7 @@ class Meta {
 
   private function controllers($values) {
     if ( is_array($values) ) {
-      if ( !empty($values[0]) ) {
+      if ( !empty($values) ) {
         return get_post_controllers($values);
       } else {
         return array();
