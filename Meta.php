@@ -159,22 +159,9 @@ class Meta {
   /**
    * @param array $values
    *
-   * @return array
-   */
-  private function images($values) {
-    if ( is_array($values) ) {
-      return get_post_controllers($values);
-    } else {
-      return $values;
-    }
-  }
-
-  /**
-   * @param array $values
-   *
    * @return PostController
    */
-  private function image($values) {
+  private function controller($values) {
     if ( is_array($values) && isset($values[0]) ) {
       return get_post_controller($values[0]);
     } else {
