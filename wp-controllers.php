@@ -11,33 +11,21 @@
 
 // Suffix with 'Plugin' to avoid possible name collision in the future
 final class WP_Controllers_Plugin {
-  private static
-    $_is_initialized = false,
-    $_directories;
+  private static $_directories;
 
+  /**
+   * _construct
+   * Kicks everything off
+   */
   public static function _construct() {
-
     add_action('init', array(__CLASS__, 'init'));
   }
 
-  public static function autoload_register($class) {
-    if ( !self::$_is_initialized ) return;
-
-    $class = function_exists('mb_strtolower') ? mb_strtolower($class) : strtolower($class);
-
-    foreach(self::$_directories as $directory) {
-      if ( file_exists("$directory/$class.php") ) {
-        include "$directory/$class.php";
-        if ( class_exists($class, false) && method_exists($class, '_construct')) {
-          call_user_func(array($class, '_construct'));
-        }
-      }
-    }
-  }
-
+  /**
+   * init.
+   * Loads all the controller classes upon the init event of WordPress
+   */
   public static function init() {
-    self::$_is_initialized = true;
-
     self::load_controller_directories();
 
     spl_autoload_register(array(__CLASS__, 'autoload_register'));
@@ -49,6 +37,24 @@ final class WP_Controllers_Plugin {
     spl_autoload_unregister(array(__CLASS__, 'autoload_register'));
 
     require_once 'functions.php';
+  }
+
+  /**
+   * autoload_register.
+   * Used to autoload the classes in order of inheritance
+   * @param  string $class the class name
+   */
+  public static function autoload_register($class) {
+    $class = function_exists('mb_strtolower') ? mb_strtolower($class) : strtolower($class);
+
+    foreach(self::$_directories as $directory) {
+      if ( file_exists("$directory/$class.php") ) {
+        include "$directory/$class.php";
+        if ( class_exists($class, false) && method_exists($class, '_construct')) {
+          call_user_func(array($class, '_construct'));
+        }
+      }
+    }
   }
 
   /**
