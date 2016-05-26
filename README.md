@@ -14,11 +14,9 @@ Ultimately, WordPress is a database-driven PHP framework. Nothing more, nothing 
 These classes make it possible to feel like you're working in PHP while enjoying all the benefits of WordPress. You lose nothing by using them, and it doesn't break *anything* in Wordpress. You're free to use as much or as little of these as you'd like. If you are (or aspire to be) a PHP developer, then you'll probably really like using this; if not, it may overwhelm you, and that's no problem.
 
 #### How to use it
-##### Include it
-Currently, simply download and drop this into your plugin or theme, then from your plugin file or theme functions.php, include the autoload.php file. So, assuming you dropped the controllers directory right inside your theme, you would add the following line to your functions.php:
-```
-include 'controllers/autoload.php';
-```
+WP Controllers is a plugin, so just drop it in your plugins directory and activate it. From there you'll get access to all the base controllers.
+
+To extend the controllers just create a `wp-controllers/` directory in your root theme or plugin, and place your controllers in that directory. It is important that your naming convention for the controllers is that the name matches the file. So if your class name is `Services` then your file should be `services.php`.
 
 ##### Get a controller
 Easy as that. Now, to get a controller (e.g. post), use the `get_post_controller` function. Simply pass a post id, slug, or object. Don't worry about type casting, it will figure itself out. Or, if you're inside a post single template (or page), just call

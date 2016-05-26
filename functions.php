@@ -1,34 +1,4 @@
 <?php
-/**
- * Autoload classes and functions
- */
-
-/*
- * Register autoloader
- */
-$directory = __DIR__;
-spl_autoload_register(function($class) use ($directory) {
-  if ( !file_exists("$directory/$class.php") ) return;
-
-  include "$directory/$class.php";
-  if ( class_exists($class) && method_exists($class, '_construct') ) {
-    call_user_func(array($class, '_construct'));
-  }
-});
-
-/*
- * Load all controller files
- */
-$_files = scandir($directory);
-$_autoload_file = basename(__FILE__);
-foreach($_files as $_file) {
-  if ( $_file !== $_autoload_file && ( $_class = strstr($_file, '.php', true) ) && "$_class.php" === $_file ) {
-    if ( !class_exists($_class) ) {
-      trigger_error("$_file failed to load a controller class", E_USER_WARNING);
-    }
-  }
-}
-
 if ( !function_exists('get_post_controller') ) {
   /**
    * Global function to call PostController::get_controller
