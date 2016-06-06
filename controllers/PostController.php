@@ -154,7 +154,7 @@ class PostController {
         return new WP_Error('no_posts_found', 'No posts were found in the wp_query. This must be used within a single or archive template.');
       }
 
-    } elseif ( isset($args[0]) && is_object($args[0]) ) {
+    } elseif ( isset($args[0]) && ( is_object($args[0]) || is_numeric($args[0]) ) ) {
       // Turn array of WP_Posts into controllers
       $posts = $args;
 
@@ -474,7 +474,7 @@ class PostController {
    */
   public function featured_image($options = array()) {
     $id = get_post_thumbnail_id($this->id);
-    return $id ? get_picture_controller( $id, $options ) : null;
+    return $id ? self::get_controller( $id, $options ) : null;
   }
 
   /**
