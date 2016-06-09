@@ -9,7 +9,7 @@ if ( !function_exists('get_post_controller') ) {
    *
    * @return PostController
    */
-  function get_post_controller($key = null, $options = array()) { return PostController::get_controller($key, $options); }
+  function get_post_controller($key = null, $options = array()) { return Post::get_controller($key, $options); }
 }
 
 if ( !function_exists('get_post_controllers') ) {
@@ -21,7 +21,7 @@ if ( !function_exists('get_post_controllers') ) {
    *
    * @return array
    */
-  function get_post_controllers($args = null) { return PostController::get_controllers($args); }
+  function get_post_controllers($args = null) { return Post::get_controllers($args); }
 }
 
 if ( !function_exists('get_page_controllers') ) {

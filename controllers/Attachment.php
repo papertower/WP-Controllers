@@ -3,7 +3,7 @@
 /**
  * Class Attachment
  */
-class Attachment extends PostController {
+class Attachment extends Post {
 
   /**
    * @var string $post_type

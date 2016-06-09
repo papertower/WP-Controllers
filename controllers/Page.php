@@ -3,7 +3,7 @@
 /**
  * Class Page
  */
-class Page extends PostController {
+class Page extends Post {
 
   /**
    * @var string $post_type
