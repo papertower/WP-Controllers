@@ -95,7 +95,7 @@ class Post {
 
       $posts = get_posts(array(
         'name'        => $key,
-        'post_type'   => 'any',
+        'post_type'   => empty($options['post_type']) ? 'any' : $options['post_type'],
         'post_status' => array('publish', 'private'),
         'numberposts' => 1
       ));
