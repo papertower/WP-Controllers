@@ -478,6 +478,18 @@ class Post {
   }
 
   /**
+   * Returns whether or not the given term(s) are associated with the post. If no terms are provided
+   * then whether or not the post has any terms within the taxonomy
+   * @param  string             $taxonomy Single taxonomy name
+   * @param  int|string|array   $term     Optional. Term term_id, name, slug or array of said. Default null.
+   * @return boolean
+   */
+  public function has_term($taxonomy, $term = null) {
+    $result = is_object_in_term($this->id, $taxonomy, $term);
+    return $result && !is_wp_error($result);
+  }
+
+  /**
    * Returns the content with standard filters applied
    * if password is required it returns the form
    * @return string
