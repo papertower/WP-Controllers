@@ -564,6 +564,7 @@ class Post {
         )
       ));
 
+      $term->posts = array();
       foreach($posts as $post)
         $term->posts[] = self::get_controller($post);
 
