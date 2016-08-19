@@ -495,11 +495,19 @@ class Post {
    * @return string
    */
   public function content() {
-    if ( post_password_required($this->post) ) {
+    if ( $this->password_required() ) {
       return get_the_password_form($this->post);
     } else {
       return apply_filters('the_content', $this->content);
     }
+  }
+
+  /**
+   * Returns true if the post is password protected and the password is still required
+   * @return boolean
+   */
+  public function password_required() {
+    return post_password_required($this->post);
   }
 
   /**
