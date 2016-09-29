@@ -95,9 +95,7 @@ class Term {
     if ( isset($args[0]) || empty($args) ) {
       $terms = $args;
     } else {
-      $taxonomies = $args['taxonomies'];
-      unset($args['taxonomies']);
-      $terms = get_terms($taxonomies, $args);
+      $terms = get_terms($args);
     }
 
     $Terms = array();
