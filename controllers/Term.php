@@ -95,6 +95,10 @@ class Term {
     if ( isset($args[0]) || empty($args) ) {
       $terms = $args;
     } else {
+      if ( isset($args['taxonomies']) ) {
+        // for backwards compatibility
+        $args['taxoxnomy'] = $args['taxonomies'];
+      }
       $terms = get_terms($args);
     }
 
