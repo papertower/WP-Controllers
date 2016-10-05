@@ -79,7 +79,7 @@ class Page extends Post {
       )
     ));
 
-    return self::get_controllers($options);
+    return parent::get_controllers($options);
   }
 
   /**
