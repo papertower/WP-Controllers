@@ -11,6 +11,12 @@ class Term {
   const CACHE_GROUP = 'termcontroller';
 
   /**
+   * @var array $taxonomies The taxonomies and their corresponding controller
+   */
+  private static
+    $taxonomies = array();
+
+  /**
    * @var object $term
    */
   private
@@ -42,6 +48,18 @@ class Term {
    *
    */
   public static function _construct() {
+    $static_class = get_called_class();
+
+    // Add taxonomy to list
+    if ( isset(static::$controller_taxonomy) ) {
+      $taxonomies = is_array(static::$controller_taxonomy) ? static::$controller_taxonomy : array(static::$controller_taxonomy);
+      foreach($taxonomies as $taxonomy) {
+        if ( !isset(self::$taxonomies[$taxonomy]) || is_subclass_of($static_class, self::$taxonomies[$taxonomy], true) )
+          self::$taxonomies[$taxonomy] = $static_class;
+      }
+    }
+
+    // Apply hooks once
     if ( __CLASS__ === get_called_class() ) {
       add_filter('edit_term', array(__CLASS__, 'edited_term'), 10, 3);
       add_filter('pre_delete_term', array(__CLASS__, 'pre_delete_term'), 10, 2);
@@ -72,6 +90,8 @@ class Term {
         if ( false !== $term_id )
           return wp_cache_get($term_id, self::CACHE_GROUP);
       }
+      $term = get_term_by($field, $key, $taxonomy);
+
     } else {
       $term = get_queried_object();
       if ( !isset($term->term_id) )
@@ -81,7 +101,13 @@ class Term {
       if ( false !== $controller ) return $controller;
     }
 
-    $controller = new self($term);
+    if ( false === $term ) {
+      return $term;
+    }
+
+    $controller = isset(self::$taxonomies[$term->taxonomy])
+      ? new self::$taxonomies[$term->taxonomy] ($term)
+      : new self ($term);
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->slug, $controller->id, self::CACHE_GROUP . '_' . 'slug', MINUTE_IN_SECONDS * 10);
@@ -95,10 +121,6 @@ class Term {
     if ( isset($args[0]) || empty($args) ) {
       $terms = $args;
     } else {
-      if ( isset($args['taxonomies']) ) {
-        // for backwards compatibility
-        $args['taxoxnomy'] = $args['taxonomies'];
-      }
       $terms = get_terms($args);
     }
 
@@ -126,6 +148,81 @@ class Term {
     wp_cache_delete($term->slug, self::CACHE_GROUP . '_slug');
     wp_cache_delete($term->name, self::CACHE_GROUP . '_name');
     wp_cache_delete($term->term_taxonomy_id, self::CACHE_GROUP . '_term_taxonomy_id');
+  }
+
+  /**
+   * Term constructor.
+   *
+   * @param object $term
+   */
+  protected function __construct($term) {
+    // Load all the term properties
+    foreach(get_object_vars($term) as $key => $value)
+      $this->$key = $value;
+
+    // Extra properties
+    $this->term         =& $term;
+    $this->id           =& $term->term_id;
+    $this->group        =& $term->term_group;
+    $this->taxonomy_id  =& $term->term_taxonomy_id;
+
+    // Meta class
+    $this->meta = new Meta($this->id, 'term');
+  }
+
+  /**
+   * @return string|WP_Error
+   */
+  public function url() {
+    return isset($this->url) ? $this->url : ( $this->url = get_term_link($this->term) );
+  }
+
+  /**
+   * Returns the posts that have this term
+   * @param  string  $post_type post type(s) to limit the query to; default: any
+   * @param  integer $count     the number of posts to return; default: -1
+   * @return Post               Post controller
+   */
+  public function posts($post_type = 'any', $count = -1) {
+    if ( !$this->count ) return array();
+
+    return Post::get_controllers(array(
+      'post_type'   => $post_type,
+      'numberposts' => $count,
+      'tax_query'   => array(
+        array(
+          'taxonomy'    => $this->taxonomy,
+          'terms'       => $this->id
+        )
+      )
+    ));
+  }
+
+  /**
+   * @param $post_type
+   * @return
+   */
+  public function oldest_post($post_type) {
+    if ( !$this->count ) return null;
+
+    $Post = get_post_controllers(array(
+      'post_type'   => $post_type,
+      'numberposts' => 1,
+      'orderby'     => 'date',
+      'order'       => 'ASC',
+      'tax_query'   => array(
+        array(
+          'taxonomy'    => $this->taxonomy,
+          'terms'       => $this->id
+        )
+      )
+    ));
+
+    if ( !empty($Post) ) return $Post[0];
+  }
+
+  public function description() {
+    return apply_filters('the_content', $this->description);
   }
 
   public static function distinct_post_terms(array $posts, $fields = '') {
@@ -167,69 +264,4 @@ class Term {
       return $results;
     }
   }
-
-  /**
-   * @param Term|object|mixed $object
-   *
-   * @return bool
-   */
-  private static function check_object($object) {
-    return isset($object->term_id);
-  }
-
-  /**
-   * Term constructor.
-   *
-   * @param object $term
-   */
-  protected function __construct($term) {
-    // Load all the term properties
-    foreach(get_object_vars($term) as $key => $value)
-      $this->$key = $value;
-
-    // Extra properties
-    $this->term         =& $term;
-    $this->id           =& $term->term_id;
-    $this->group        =& $term->term_group;
-    $this->taxonomy_id  =& $term->term_taxonomy_id;
-
-    // Meta class
-    $this->meta = new Meta($this->id, 'term');
-  }
-
-  /**
-   * @return string|WP_Error
-   */
-  public function url() {
-    return isset($this->url) ? $this->url : ( $this->url = get_term_link($this->term) );
-  }
-
-  /**
-   * @param $post_type
-   * @return
-   */
-
-  public function oldest_post($post_type) {
-    if ( !$this->count ) return null;
-
-    $Post = get_post_controllers(array(
-      'post_type'   => $post_type,
-      'numberposts' => 1,
-      'orderby'     => 'date',
-      'order'       => 'ASC',
-      'tax_query'   => array(
-        array(
-          'taxonomy'    => $this->taxonomy,
-          'terms'       => $this->id
-        )
-      )
-    ));
-
-    if ( !empty($Post) ) return $Post[0];
-  }
-
-  public function description() {
-    return apply_filters('the_content', $this->description);
-  }
-
 };
