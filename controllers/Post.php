@@ -330,8 +330,7 @@ class Post {
    * @return string
    */
   public function archive_url() {
-    if ( isset($this->_archive_url) ) return $this->_archive_url;
-    return $this->_archive_url = get_post_type_archive_link($this->type);
+    return get_post_type_archive_link(static::$post_type);
   }
 
   /**
