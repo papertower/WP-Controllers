@@ -1,6 +1,5 @@
 <?php
 /*
- * @version 0.7.0
  * @author Jason Adams <jason.the.adams@gmail.com>
  */
 class Term {
@@ -171,10 +170,39 @@ class Term {
   }
 
   /**
+   * Returns the term url
    * @return string|WP_Error
    */
   public function url() {
     return isset($this->url) ? $this->url : ( $this->url = get_term_link($this->term) );
+  }
+
+  /**
+   * Returns the term name filtered by the standard filters
+   * @return string filtered term name
+   */
+  public function title() {
+    switch($this->taxonomy) {
+      case 'category': return apply_filters('single_cat_title', $this->name);
+      case 'post_tag': return apply_filters('single_tag_title', $this->name);
+      default: return apply_filters('single_term_title', $this->name);
+    }
+  }
+
+  /**
+   * Returns the parent term controller if there is one
+   * @return Term|null controller if has parent
+   */
+  public function parent() {
+    return $this->parent ? self::get_controller($this->parent, $this->taxonomy, 'id') : null;
+  }
+
+  /**
+   * Returns the term description filtered by the_content
+   * @return string filtered description
+   */
+  public function description() {
+    return apply_filters('the_content', $this->description);
   }
 
   /**
@@ -219,10 +247,6 @@ class Term {
     ));
 
     if ( !empty($Post) ) return $Post[0];
-  }
-
-  public function description() {
-    return apply_filters('the_content', $this->description);
   }
 
   public static function distinct_post_terms(array $posts, $fields = '') {
