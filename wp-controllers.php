@@ -3,7 +3,7 @@
  * Plugin Name: WP Controllers
  * Plugin URI: https://github.com/JasonTheAdams/WP-Controllers
  * Description: Controllers to work in WordPress the OOP way
- * Version: 0.5.0
+ * Version: 0.6.0
  * Author: Jason Adams
  * Author URI: https://github.com/JasonTheAdams/
  * License: MIT
