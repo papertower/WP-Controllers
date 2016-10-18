@@ -329,7 +329,7 @@ class Post {
    * Returns archive url
    * @return string
    */
-  public function archive_url() {
+  public static function archive_url() {
     return get_post_type_archive_link(static::$post_type);
   }
 
