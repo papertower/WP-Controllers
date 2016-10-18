@@ -158,11 +158,14 @@ class Post {
       // Turn array of WP_Posts into controllers
       $posts = $args;
 
-    } else {
+    } elseif ( !empty($args) ) {
       // Retrieve posts from get_posts arguments
       if ( !isset($args['suppress_filters']) ) $args['suppress_filters'] = false;
       $posts = get_posts($args);
 
+    } else {
+      // Probably empty array of what would be posts or something unexpected
+      return array();
     }
 
     $controllers = array();
