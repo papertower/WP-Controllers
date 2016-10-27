@@ -198,6 +198,17 @@ class Term {
   }
 
   /**
+   * Returns the children term controllers
+   * @return array child term controllers
+   */
+  public function children() {
+    return self::get_controllers(array(
+      'taxonomy'  => static::taxonomy,
+      'child_of'  => $this->id
+    ));
+  }
+  
+  /**
    * Returns the term description filtered by the_content
    * @return string filtered description
    */
