@@ -14,15 +14,20 @@
  */
 class Post {
   /**
-   * @var string $post_type the post type this controller is intended for
-   * @var array $post_types post_type => controller
-   * @var array $page_templates template_slug => controller
+   * @var array $_controller_post_types       post_type => controller
+   * @var array $_controller_page_templates   template_slug => controller
    */
   private static
-    $post_type      = 'post',
-    $post_types     = array(),
-    $page_templates = array(),
-    $page_template  = null;
+    $_controller_post_types     = array(),
+    $_controller_page_templates = array();
+
+  /**
+   * @var array|string  $controller_post_type      the post type this controller is intended for
+   * @var array|string  $controller_page_template  No default template
+   */
+  public static
+    $controller_post_type      = 'post',
+    $controller_page_template  = null;
 
   /**
    * @var object $post WP_Post class
@@ -119,16 +124,16 @@ class Post {
     if ( $_post->post_type === 'page' ) {
       $template = str_replace('.php', '', get_page_template_slug($_post));
 
-      $controller = $template && isset(self::$page_templates[$template])
-        ? new self::$page_templates[$template] ($_post)
+      $controller = $template && isset(self::$_controller_page_templates[$template])
+        ? new self::$_controller_page_templates[$template] ($_post)
         : new Page ($_post);
 
     } elseif ( $_post->post_type === 'attachment' && wp_attachment_is_image($_post->ID) ) {
-      $controller = new self::$post_types['image'] ($_post);
+      $controller = new self::$_controller_post_types['image'] ($_post);
 
     } else {
-      $controller = ( isset(self::$post_types[$_post->post_type]) )
-        ? new self::$post_types[$_post->post_type] ($_post)
+      $controller = ( isset(self::$_controller_post_types[$_post->post_type]) )
+        ? new self::$_controller_post_types[$_post->post_type] ($_post)
         : new self ($_post);
     }
 
@@ -179,7 +184,7 @@ class Post {
   /**
    * Static initialization.
    * Called after this file is required. Adds the post type or page template
-   * to the self::$post_types and self::$page_templates arrays, respectively,
+   * to the self::$_controller_post_types and self::$_controller_page_templates arrays, respectively,
    * for later use with the self::get_controller() function.
    * @since 0.4.0
    * @see Post::$post_types
@@ -190,20 +195,26 @@ class Post {
     $static_class = get_called_class();
 
     // Add post type to list
-    if ( isset(static::$post_type) ) {
-      $post_types = is_array(static::$post_type) ? static::$post_type : array(static::$post_type);
+    if ( isset(static::$controller_post_type) || isset(static::$post_type) ) {
+      // backwards compatibility - $_controller_post_type preferred
+      $post_type = isset(static::$controller_post_type) ? static::$controller_post_type : static::$post_type;
+
+      $post_types = is_array($post_type) ? $post_type : array($post_type);
       foreach($post_types as $post_type) {
-        if ( !isset(self::$post_types[$post_type]) || is_subclass_of($static_class, self::$post_types[$post_type], true) )
-          self::$post_types[$post_type] = $static_class;
+        if ( !isset(self::$_controller_post_types[$post_type]) || is_subclass_of($static_class, self::$_controller_post_types[$post_type], true) )
+          self::$_controller_post_types[$post_type] = $static_class;
       }
     }
 
     // Add page template to list
-    if ( isset(static::$page_template) ) {
-      $templates = is_array(static::$page_template) ? static::$page_template : array(static::$page_template);
+    if ( isset(static::$controller_page_template) || isset(static::$page_template) ) {
+      // backwards compatibility - $_controller_page_template preferred
+      $page_template = isset($_controller_page_template) ? static::$controller_page_template : static::$page_template;
+
+      $templates = is_array($page_template) ? $page_template : array($page_template);
       foreach($templates as $template) {
-        if ( !isset(self::$page_templates[$template]) || is_subclass_of($static_class, self::$post_types[$post_type], true) )
-          self::$page_templates[$template] = $static_class;
+        if ( !isset(self::$_controller_page_templates[$template]) || is_subclass_of($static_class, self::$_controller_post_types[$post_type], true) )
+          self::$_controller_page_templates[$template] = $static_class;
       }
     }
 
@@ -333,7 +344,7 @@ class Post {
    * @return string
    */
   public static function archive_url() {
-    return get_post_type_archive_link(static::$post_type);
+    return get_post_type_archive_link(static::$controller_post_type);
   }
 
   /**
@@ -563,7 +574,7 @@ class Post {
 
     foreach($terms as $term) {
       $posts = get_posts(array(
-        'post_type'    => static::$post_type,
+        'post_type'    => static::$controller_post_type,
         'numberposts'  => -1,
         'tax_query'    => array(
           array(
@@ -602,7 +613,7 @@ class Post {
     }
 
     return self::get_controllers(array(
-      'post_type'   => static::$post_type,
+      'post_type'   => static::$controller_post_type,
       'numberposts' => $numberposts,
       'post__not_in'=> $exclude
     ));
@@ -619,7 +630,7 @@ class Post {
    * @return object                   array of controllers or empty array
    */
   public static function random_posts($count = -1, $post_type = null) {
-    $post_type = ( $post_type ) ? $post_type : static::$post_type;
+    $post_type = ( $post_type ) ? $post_type : static::$controller_post_type;
 
     $ids = get_posts(array(
       'post_type'   => $post_type,

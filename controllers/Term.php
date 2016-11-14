@@ -13,7 +13,7 @@ class Term {
    * @var array $taxonomies The taxonomies and their corresponding controller
    */
   private static
-    $taxonomies = array();
+    $_controller_taxonomies = array();
 
   /**
    * @var object $term
@@ -53,8 +53,8 @@ class Term {
     if ( isset(static::$controller_taxonomy) ) {
       $taxonomies = is_array(static::$controller_taxonomy) ? static::$controller_taxonomy : array(static::$controller_taxonomy);
       foreach($taxonomies as $taxonomy) {
-        if ( !isset(self::$taxonomies[$taxonomy]) || is_subclass_of($static_class, self::$taxonomies[$taxonomy], true) )
-          self::$taxonomies[$taxonomy] = $static_class;
+        if ( !isset(self::$_controller_taxonomies[$taxonomy]) || is_subclass_of($static_class, self::$_controller_taxonomies[$taxonomy], true) )
+          self::$_controller_taxonomies[$taxonomy] = $static_class;
       }
     }
 
@@ -104,8 +104,8 @@ class Term {
       return $term;
     }
 
-    $controller = isset(self::$taxonomies[$term->taxonomy])
-      ? new self::$taxonomies[$term->taxonomy] ($term)
+    $controller = isset(self::$_controller_taxonomies[$term->taxonomy])
+      ? new self::$_controller_taxonomies[$term->taxonomy] ($term)
       : new self ($term);
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
@@ -207,7 +207,7 @@ class Term {
       'child_of'  => $this->id
     ));
   }
-  
+
   /**
    * Returns the term description filtered by the_content
    * @return string filtered description

@@ -8,8 +8,8 @@ class Attachment extends Post {
   /**
    * @var string $post_type
    */
-  protected static
-    $post_type  = 'attachment';
+  public static
+    $controller_post_type  = 'attachment';
 
   /**
    * @var string $description
@@ -50,7 +50,7 @@ class Attachment extends Post {
     return isset($this->_link) ? $this->_link
       : $this->_link = wp_get_attachment_url($this->id);
   }
-  
+
   public function path() {
     return isset($this->_path) ? $this->_path
       : $this->_path = get_attached_file($this->id);
