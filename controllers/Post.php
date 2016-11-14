@@ -221,30 +221,42 @@ class Post {
     // Apply hooks once
     if ( __CLASS__ === $static_class ) {
       add_filter('wp_insert_post', array(__CLASS__, 'wp_insert_post'), 10, 3);
-      add_action('trash_post', array(__CLASS__, 'trash_post'));
+      add_action('wp_trash_post', array(__CLASS__, 'trash_post'));
+      add_action('pre_delete_post', array(__CLASS__, 'pre_delete_post'));
     }
   }
 
   /**
-   * Callback for the wp_insert_post filter, used to invalidate the cached
-   * controllers for the saved post
+   * Callback for the wp_insert_post filter, used to invalidate the cache
    * @ignore
    */
   public static function wp_insert_post($post_id, $post, $is_update) {
-    if ( !$is_update ) return;
-
-    wp_cache_delete($post->post_name, 'postcontroller_slug');
-    wp_cache_delete($post_id, 'postcontroller');
+    if ( $is_update ) self::flush_cache($post);
   }
 
   /**
-   * Callback for the trash_post filter, used to invalidate the cached
-   * controllers for the trashed post
+   * Callback for the wp_trash_post filter, used to invalidate the cache
    * @ignore
    */
-  public static function trash_post() {
-    if ( did_action('trash_post') ) return;
+  public static function wp_trash_post($post_id) {
+    if ( !did_action('wp_trash_post') ) self::flush_cache(get_post($post_id));
+  }
 
+  /**
+   * Callback for the pre_delete_post action, used to invalidate the cache
+   * @ignore
+   */
+  public static function pre_delete_post($post_id) {
+    self::flush_cache(get_post($post_id));
+  }
+
+  /**
+   * flush_cache.
+   * Called when the cache needs to be invalidated, intended to be overridden by child controllers
+   * so their own cached items can be included
+   * @param  WP_Post $post post object that needs to be invalidated
+   */
+  public static function flush_cache($post) {
     wp_cache_delete($post->post_name, 'postcontroller_slug');
     wp_cache_delete($post_id, 'postcontroller');
   }
