@@ -50,7 +50,7 @@ class Picture extends Attachment {
       $height = $this->height('full');
 
       if ( $width > $height ) {
-        $detials = $this->details($wide_size);
+        $details = $this->details($wide_size);
       } elseif ( $height > $width ) {
         $details = $this->details($size);
       } else {
