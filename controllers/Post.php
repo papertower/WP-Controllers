@@ -209,7 +209,7 @@ class Post {
     // Add page template to list
     if ( isset(static::$controller_page_template) || isset(static::$page_template) ) {
       // backwards compatibility - $_controller_page_template preferred
-      $page_template = isset($_controller_page_template) ? static::$controller_page_template : static::$page_template;
+      $page_template = isset(static::$controller_page_template) ? static::$controller_page_template : static::$page_template;
 
       $templates = is_array($page_template) ? $page_template : array($page_template);
       foreach($templates as $template) {
