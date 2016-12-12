@@ -8,8 +8,8 @@ class Page extends Post {
   /**
    * @var string $post_type
    */
-  protected static
-    $post_type = 'page';
+  public static
+    $controller_post_type = 'page';
 
   /**
    * @var PostController $_parent
