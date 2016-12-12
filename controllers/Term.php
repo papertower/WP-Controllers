@@ -203,7 +203,7 @@ class Term {
    */
   public function children() {
     return self::get_controllers(array(
-      'taxonomy'  => static::taxonomy,
+      'taxonomy'  => static::$taxonomy,
       'child_of'  => $this->id
     ));
   }
