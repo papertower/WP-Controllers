@@ -126,7 +126,7 @@ class Post {
 
       $controller = $template && isset(self::$_controller_page_templates[$template])
         ? new self::$_controller_page_templates[$template] ($_post)
-        : new Page ($_post);
+        : new self::$_controller_post_types['page'] ($_post);
 
     } elseif ( $_post->post_type === 'attachment' && wp_attachment_is_image($_post->ID) ) {
       $controller = new self::$_controller_post_types['image'] ($_post);
