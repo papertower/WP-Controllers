@@ -162,7 +162,7 @@ class Meta {
    * @return PostController
    */
   private function controller($values) {
-    if ( is_array($values) && isset($values[0]) ) {
+    if ( is_array($values) && !empty($values[0]) ) {
       return get_post_controller($values[0]);
     } else {
       return $values;
