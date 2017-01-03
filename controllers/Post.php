@@ -258,7 +258,7 @@ class Post {
    */
   public static function flush_cache($post) {
     wp_cache_delete($post->post_name, 'postcontroller_slug');
-    wp_cache_delete($post_id, 'postcontroller');
+    wp_cache_delete($post->ID, 'postcontroller');
   }
 
   /**
