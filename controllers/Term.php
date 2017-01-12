@@ -116,7 +116,14 @@ class Term {
     return $controller;
   }
 
-  public static function get_controllers($args) {
+  /**
+   * Returns an array of Term controllers from either arguments for an array of ids. If an array of
+   * ids is supplied, the second parameter is the taxonomy the ids belong to
+   * @param  array $args        get_terms arguments or array of ids
+   * @param  string $taxonomy   taxonomy for array of ids
+   * @return array              array of controllers
+   */
+  public static function get_controllers($args, $taxonomy = '') {
     if ( isset($args[0]) || empty($args) ) {
       $terms = $args;
     } else {
@@ -125,7 +132,7 @@ class Term {
 
     $Terms = array();
     foreach($terms as $term) {
-      $Terms[] = self::get_controller($term);
+      $Terms[] = self::get_controller($term, $taxonomy);
     }
 
     return $Terms;
