@@ -121,21 +121,8 @@ class Post {
     }
 
     // Construct, cache, and return post
-    if ( $_post->post_type === 'page' ) {
-      $template = str_replace('.php', '', get_page_template_slug($_post));
-
-      $controller = $template && isset(self::$_controller_page_templates[$template])
-        ? new self::$_controller_page_templates[$template] ($_post)
-        : new self::$_controller_post_types['page'] ($_post);
-
-    } elseif ( $_post->post_type === 'attachment' && wp_attachment_is_image($_post->ID) ) {
-      $controller = new self::$_controller_post_types['image'] ($_post);
-
-    } else {
-      $controller = ( isset(self::$_controller_post_types[$_post->post_type]) )
-        ? new self::$_controller_post_types[$_post->post_type] ($_post)
-        : new self ($_post);
-    }
+    $controller_class = self::_get_controller_class($_post);
+    $controller = new $controller_class ($_post);
 
     wp_cache_set($controller->slug, $controller->id, 'postcontroller_slug', MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->id, $controller, 'postcontroller', MINUTE_IN_SECONDS * 10);
@@ -227,6 +214,29 @@ class Post {
   }
 
   /**
+   * Returns the class name for the corresponding post
+   * @param  WP_Post $post  WP_Post to get the class for
+   * @return string         Class name
+   */
+  private static function _get_controller_class($post) {
+    if ( $post->post_type === 'page' ) {
+      $template = str_replace('.php', '', get_page_template_slug($post));
+
+      return $template && isset(self::$_controller_page_templates[$template])
+        ? self::$_controller_page_templates[$template]
+        : self::$_controller_post_types['page'];
+
+    } elseif ( $post->post_type === 'attachment' && wp_attachment_is_image($post->ID) ) {
+      return self::$_controller_post_types['image'];
+
+    } else {
+      return ( isset(self::$_controller_post_types[$post->post_type]) )
+        ? self::$_controller_post_types[$post->post_type]
+        : __CLASS__;
+    }
+  }
+
+  /**
    * Callback for the wp_insert_post filter, used to invalidate the cache
    * @ignore
    */
@@ -257,6 +267,11 @@ class Post {
    * @param  WP_Post $post post object that needs to be invalidated
    */
   public static function flush_cache($post) {
+    $controller_class = self::_get_controller_class($post);
+    if ( __CLASS__ !== $controller_class && method_exists($controller_class, 'flush_cache') ) {
+      call_user_func(array($controller_class, 'flush_cache'), $post);
+    }
+
     wp_cache_delete($post->post_name, 'postcontroller_slug');
     wp_cache_delete($post->ID, 'postcontroller');
   }
