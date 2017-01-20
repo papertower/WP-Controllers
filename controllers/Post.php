@@ -45,6 +45,7 @@ class Post {
    * @var string status
    * @var string type
    * @var int    author
+   * @var int    parent_id
    * @var int    menu_order
    * @var int    comment_count
    * @var string comment_status
@@ -55,21 +56,22 @@ class Post {
    * @var Meta   meta
    */
   public
-  	$id,
-  	$slug,
-  	$title,
-  	$excerpt,
-  	$content,
-  	$status,
-  	$type,
-  	$author,
-  	$menu_order,
-  	$comment_count,
-  	$comment_status,
-  	$date,
-  	$date_gmt,
-  	$modified,
-  	$modified_gmt,
+    $id,
+    $slug,
+    $title,
+    $excerpt,
+    $content,
+    $status,
+    $type,
+    $author,
+    $parent_id,
+    $menu_order,
+    $comment_count,
+    $comment_status,
+    $date,
+    $date_gmt,
+    $modified,
+    $modified_gmt,
     $meta;
 
   /**
@@ -291,6 +293,7 @@ class Post {
     $this->content    =& $this->post->post_content;
     $this->status     =& $this->post->post_status;
     $this->type       =& $this->post->post_type;
+    $this->parent_id  =& $this->post->post_parent;
     $this->author     =& $this->post->post_author;
     $this->menu_order =& $this->post->menu_order;
 

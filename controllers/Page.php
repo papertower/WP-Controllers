@@ -56,9 +56,9 @@ class Page extends Post {
    */
   public function parent() {
     if ( $this->_parent ) return $this->_parent;
-    if ( $this->post->post_parent == 0 ) return null;
+    if ( !$this->parent_id ) return null;
 
-    return $this->_parent = self::get_controller($this->post->post_parent);
+    return $this->_parent = self::get_controller($this->parent_id);
   }
 
   /**
