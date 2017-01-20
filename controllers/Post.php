@@ -241,7 +241,8 @@ class Post {
    * @ignore
    */
   public static function wp_insert_post($post_id, $post, $is_update) {
-    if ( $is_update ) self::flush_cache($post);
+    $controller_class = self::_get_controller_class($post);
+    if ( $is_update ) $controller_class::flush_cache($post);
   }
 
   /**
@@ -249,7 +250,8 @@ class Post {
    * @ignore
    */
   public static function wp_trash_post($post_id) {
-    if ( !did_action('wp_trash_post') ) self::flush_cache(get_post($post_id));
+    $controller_class = self::_get_controller_class($post);
+    if ( !did_action('wp_trash_post') ) $controller_class::flush_cache(get_post($post_id));
   }
 
   /**
@@ -257,7 +259,8 @@ class Post {
    * @ignore
    */
   public static function pre_delete_post($post_id) {
-    self::flush_cache(get_post($post_id));
+    $controller_class = self::_get_controller_class($post);
+    $controller_class::flush_cache(get_post($post_id));
   }
 
   /**
@@ -267,11 +270,6 @@ class Post {
    * @param  WP_Post $post post object that needs to be invalidated
    */
   public static function flush_cache($post) {
-    $controller_class = self::_get_controller_class($post);
-    if ( __CLASS__ !== $controller_class && method_exists($controller_class, 'flush_cache') ) {
-      call_user_func(array($controller_class, 'flush_cache'), $post);
-    }
-
     wp_cache_delete($post->post_name, 'postcontroller_slug');
     wp_cache_delete($post->ID, 'postcontroller');
   }
