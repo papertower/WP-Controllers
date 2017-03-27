@@ -14,20 +14,12 @@
  */
 class Post {
   /**
+   * @var array $_controller_templates        template_slug => controller
    * @var array $_controller_post_types       post_type => controller
-   * @var array $_controller_page_templates   template_slug => controller
    */
   private static
-    $_controller_post_types     = array(),
-    $_controller_page_templates = array();
-
-  /**
-   * @var array|string  $controller_post_type      the post type this controller is intended for
-   * @var array|string  $controller_page_template  No default template
-   */
-  public static
-    $controller_post_type      = 'post',
-    $controller_page_template  = null;
+    $_controller_templates      = array(),
+    $_controller_post_types     = array();
 
   /**
    * @var object $post WP_Post class
@@ -123,7 +115,7 @@ class Post {
     }
 
     // Construct, cache, and return post
-    $controller_class = self::_get_controller_class($_post);
+    $controller_class = self::get_controller_class($_post);
     $controller = new $controller_class ($_post);
 
     wp_cache_set($controller->slug, $controller->id, 'postcontroller_slug', MINUTE_IN_SECONDS * 10);
@@ -220,21 +212,61 @@ class Post {
    * @param  WP_Post $post  WP_Post to get the class for
    * @return string         Class name
    */
-  private static function _get_controller_class($post) {
-    if ( $post->post_type === 'page' ) {
-      $template = str_replace('.php', '', get_page_template_slug($post));
+  private static function get_controller_class($post) {
+    // Check for template-specific controller first
+    $class = self::get_template_class($post);
+    if ( $class ) return $class;
 
-      return $template && isset(self::$_controller_page_templates[$template])
-        ? self::$_controller_page_templates[$template]
-        : self::$_controller_post_types['page'];
+    // Set all the post type classes if not set
+    if ( empty(self::$_controller_post_types) ) {
+      self::$_controller_post_types['image'] = 'Picture';
 
-    } elseif ( $post->post_type === 'attachment' && wp_attachment_is_image($post->ID) ) {
+      $post_types = get_post_types();
+      foreach($post_types as $type) {
+        if ( !empty($type->wp_controller_class) ) {
+          self::$_controller_post_types[$type->name] = $type->wp_controller_class;
+        }
+      }
+    }
+
+    if ( 'attachment' === $post->post_type && wp_attachment_is_image($post) ) {
       return self::$_controller_post_types['image'];
-
     } else {
-      return ( isset(self::$_controller_post_types[$post->post_type]) )
+      return isset(self::$_controller_post_types[$post->post_type])
         ? self::$_controller_post_types[$post->post_type]
         : __CLASS__;
+    }
+  }
+
+  /**
+   * get_template_class
+   * @param  WP_Post  $post post to retrieve the template class for
+   * @return string|false   class if there is one, false if not class or template
+   */
+  private static function get_template_class($post) {
+    $template = get_page_template_slug($post);
+    if ( !$template ) return false;
+
+    if ( isset(self::$_controller_templates[$template]) ) {
+      return self::$_controller_templates[$template];
+    }
+
+    if ( !isset(self::$_controller_templates[$template]) ) {
+      $data = get_file_data(get_template_directory() . "/$template", array(
+        'controller_class' => 'WP Controller Class'
+      ));
+
+      $class = $data['controller_class'];
+
+      if ( is_child_theme() ) {
+        $data = get_file_data(get_stylesheet_directory() . "/$template", array(
+          'controller_class' => 'WP Controller Class'
+        ));
+
+        $class = !empty($data['controller_class']) ? $data['controller_class'] : $class;
+      }
+
+      return self::$_controller_templates[$template] = $class ? $class : false;
     }
   }
 
@@ -243,7 +275,7 @@ class Post {
    * @ignore
    */
   public static function wp_insert_post($post_id, $post, $is_update) {
-    $controller_class = self::_get_controller_class($post);
+    $controller_class = self::get_controller_class($post);
     if ( $is_update ) $controller_class::flush_cache($post);
   }
 
@@ -252,7 +284,7 @@ class Post {
    * @ignore
    */
   public static function wp_trash_post($post_id) {
-    $controller_class = self::_get_controller_class($post);
+    $controller_class = self::get_controller_class($post);
     if ( !did_action('wp_trash_post') ) $controller_class::flush_cache(get_post($post_id));
   }
 
@@ -261,7 +293,7 @@ class Post {
    * @ignore
    */
   public static function pre_delete_post($post_id) {
-    $controller_class = self::_get_controller_class($post);
+    $controller_class = self::get_controller_class($post);
     $controller_class::flush_cache(get_post($post_id));
   }
 
