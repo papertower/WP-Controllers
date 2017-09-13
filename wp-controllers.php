@@ -19,6 +19,7 @@ final class WP_Controllers_Plugin {
    */
   public static function _construct() {
     add_action('init', array(__CLASS__, 'init'));
+    add_filter('register_post_type_args', array(__CLASS__, 'register_post_type_args'), 10, 2);
   }
 
   /**
@@ -30,13 +31,25 @@ final class WP_Controllers_Plugin {
 
     spl_autoload_register(array(__CLASS__, 'autoload_register'));
 
-    foreach(self::$_directories as $directory) {
-      self::auto_load_controllers($directory);
+    require_once 'functions.php';
+  }
+
+  public static function register_post_type_args($args, $post_type) {
+    switch($post_type) {
+      case 'post':
+        $args['wp_controller_class'] = 'Post';
+        break;
+
+      case 'attachment':
+        $args['wp_controller_class'] = 'Attachment';
+        break;
+
+      case 'page':
+        $args['wp_controller_class'] = 'Page';
+        break;
     }
 
-    spl_autoload_unregister(array(__CLASS__, 'autoload_register'));
-
-    require_once 'functions.php';
+    return $args;
   }
 
   /**
@@ -102,24 +115,6 @@ final class WP_Controllers_Plugin {
         $directory = apply_filters('wp_controllers_plugin_directory', "$plugins_path/$path/wp-controllers", $path, $data);
         if ( is_dir($directory) ) {
           self::$_directories[] = $directory;
-        }
-      }
-    }
-  }
-
-  /**
-   * auto_load_controllers.
-   * Loads the controller classes for the given directory
-   * @param  string $directory absolute path to directory
-   */
-  private static function auto_load_controllers($directory) {
-    $files = scandir($directory);
-    if ( empty($files) ) return;
-
-    foreach($files as $file) {
-      if ( ( $class = strstr($file, '.php', true) ) ) {
-        if ( !class_exists($class) ) {
-          trigger_error("$file expected to load the $class class but $class was not found", E_USER_WARNING);
         }
       }
     }

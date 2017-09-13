@@ -5,11 +5,6 @@
  */
 class Picture extends Attachment {
   /**
-   * @var string $post_type
-   */
-  public static $controller_post_type = 'image';
-
-  /**
    * @var array $sizes
    * @var boolean $is_image
    */

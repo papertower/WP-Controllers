@@ -13,7 +13,7 @@ class Term {
    * @var array $taxonomies The taxonomies and their corresponding controller
    */
   private static
-    $_controller_taxonomies = array();
+    $_controller_taxonomies;
 
   /**
    * @var object $term
@@ -47,17 +47,6 @@ class Term {
    *
    */
   public static function _construct() {
-    $static_class = get_called_class();
-
-    // Add taxonomy to list
-    if ( isset(static::$controller_taxonomy) ) {
-      $taxonomies = is_array(static::$controller_taxonomy) ? static::$controller_taxonomy : array(static::$controller_taxonomy);
-      foreach($taxonomies as $taxonomy) {
-        if ( !isset(self::$_controller_taxonomies[$taxonomy]) || is_subclass_of($static_class, self::$_controller_taxonomies[$taxonomy], true) )
-          self::$_controller_taxonomies[$taxonomy] = $static_class;
-      }
-    }
-
     // Apply hooks once
     if ( __CLASS__ === get_called_class() ) {
       add_filter('edit_term', array(__CLASS__, 'edited_term'), 10, 3);
@@ -104,9 +93,9 @@ class Term {
       return $term;
     }
 
-    $controller = isset(self::$_controller_taxonomies[$term->taxonomy])
-      ? new self::$_controller_taxonomies[$term->taxonomy] ($term)
-      : new self ($term);
+    // Construct, cache, and return term
+    $controller_class = self::get_controller_class($term);
+    $controller = new $controller_class ($term);
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->slug, $controller->id, self::CACHE_GROUP . '_' . 'slug', MINUTE_IN_SECONDS * 10);
@@ -136,6 +125,30 @@ class Term {
     }
 
     return $Terms;
+  }
+
+  /**
+   * Returns the class name for the corresponding term
+   * @param  WP_Term $term WP_Term to get the class for
+   * @return string        Class name
+   */
+  private static function get_controller_class($term) {
+    if ( !is_array(self::$_controller_taxonomies) ) {
+      self::$_controller_taxonomies = array();
+
+      $taxonomies = get_taxonomies(array(), 'objects');
+      foreach($taxonomies as $taxonomy) {
+        if ( !empty($taxonomy->wp_controller_class) ) {
+          self::$_controller_taxonomies[$taxonomy->name] = $taxonomy->wp_controller_class;
+        }
+      }
+    }
+
+    $class = isset(self::$_controller_taxonomies[$term->taxonomy])
+      ? self::$_controller_taxonomies[$term->taxonomy]
+      : __CLASS__;
+
+    return apply_filters('wp_controllers_term_class', $class, $term);
   }
 
   public static function edit_term($term_id, $term_taxonomy_id, $taxonomy) {
