@@ -14,6 +14,12 @@
  */
 class Post {
   /**
+   * @var string $post_type
+   */
+  public static
+    $controller_post_type = 'post';
+    
+  /**
    * @var array $_controller_templates        template_slug => controller
    * @var array $_controller_post_types       post_type => controller
    */
@@ -228,14 +234,14 @@ class Post {
 
     } else {
       $data = get_file_data(get_template_directory() . "/$template", array(
-        'controller_class' => 'WP Controller Class'
+        'controller_class' => 'WP Controller'
       ));
 
       $class = $data['controller_class'];
 
       if ( is_child_theme() ) {
         $data = get_file_data(get_stylesheet_directory() . "/$template", array(
-          'controller_class' => 'WP Controller Class'
+          'controller_class' => 'WP Controller'
         ));
 
         $class = !empty($data['controller_class']) ? $data['controller_class'] : $class;
