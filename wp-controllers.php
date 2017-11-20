@@ -58,11 +58,16 @@ final class WP_Controllers_Plugin {
    * @param  string $class the class name
    */
   public static function autoload_register($class) {
+    // Checks for file in lowerclass
     $lower_class = function_exists('mb_strtolower') ? mb_strtolower($class) : strtolower($class);
 
+    // Checks for class with namespacing stripped
+    $namespace_position = strrpos($class, '\\');
+    $base_class = $namespace_position ? substr($class, -1 * ( strlen($class) - $namespace_position - 1 ) ) : $class;
+
     foreach(self::$_directories as $directory) {
-      if ( file_exists("$directory/$class.php") ) {
-        $include = "$directory/$class.php";
+      if ( file_exists("$directory/$base_class.php") ) {
+        $include = "$directory/$base_class.php";
       } elseif ( file_exists("$directory/$lower_class.php") ) {
         $include = "$directory/$lower_class";
       } else {
