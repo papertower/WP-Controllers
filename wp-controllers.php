@@ -78,6 +78,8 @@ final class WP_Controllers_Plugin {
       if ( class_exists($class, false) && method_exists($class, '_construct')) {
         call_user_func(array($class, '_construct'));
       }
+      
+      break;
     }
   }
 
