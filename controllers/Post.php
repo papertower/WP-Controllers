@@ -18,7 +18,7 @@ class Post {
    */
   public static
     $controller_post_type = 'post';
-    
+
   /**
    * @var array $_controller_templates        template_slug => controller
    * @var array $_controller_post_types       post_type => controller
@@ -169,25 +169,6 @@ class Post {
   }
 
   /**
-   * Static initialization.
-   * Called after this file is required. Adds the post type or page template
-   * to the self::$_controller_post_types and self::$_controller_page_templates arrays, respectively,
-   * for later use with the self::get_controller() function.
-   * @since 0.4.0
-   * @see Post::$post_types
-   * @see Post::$page_templates
-   * @see Post::get_controller()
-   */
-  public static function _construct() {
-    // Apply hooks once
-    if ( __CLASS__ === get_called_class() ) {
-      add_filter('wp_insert_post', array(__CLASS__, 'wp_insert_post'), 10, 3);
-      add_action('wp_trash_post', array(__CLASS__, 'trash_post'));
-      add_action('pre_delete_post', array(__CLASS__, 'pre_delete_post'));
-    }
-  }
-
-  /**
    * Returns the class name for the corresponding post
    * @param  WP_Post $post  WP_Post to get the class for
    * @return string         Class name
@@ -252,41 +233,19 @@ class Post {
   }
 
   /**
-   * Callback for the wp_insert_post filter, used to invalidate the cache
-   * @ignore
+   * Called when the cache for a post controller needs to be flushed. Calls the flush_cache static
+   * method for the class the post belongs to.
+   * @param  WP_Post $post  post object that needs to be invalidated
+   * @param  string  $event event which triggered the flush
    */
-  public static function wp_insert_post($post_id, $post, $is_update) {
-    $controller_class = self::get_controller_class($post);
-    if ( $is_update ) $controller_class::flush_cache($post);
-  }
-
-  /**
-   * Callback for the wp_trash_post filter, used to invalidate the cache
-   * @ignore
-   */
-  public static function wp_trash_post($post_id) {
-    $controller_class = self::get_controller_class($post);
-    if ( !did_action('wp_trash_post') ) $controller_class::flush_cache(get_post($post_id));
-  }
-
-  /**
-   * Callback for the pre_delete_post action, used to invalidate the cache
-   * @ignore
-   */
-  public static function pre_delete_post($post_id) {
-    $controller_class = self::get_controller_class($post);
-    $controller_class::flush_cache(get_post($post_id));
-  }
-
-  /**
-   * flush_cache.
-   * Called when the cache needs to be invalidated, intended to be overridden by child controllers
-   * so their own cached items can be included
-   * @param  WP_Post $post post object that needs to be invalidated
-   */
-  public static function flush_cache($post) {
+  public static function trigger_cache_flush($post, $event) {
     wp_cache_delete($post->post_name, 'postcontroller_slug');
     wp_cache_delete($post->ID, 'postcontroller');
+
+    $controller_class = self::get_controller_class($post);
+    if ( $controller_class && method_exists($controller_class, 'flush_cache') ) {
+      $controller_class::flush_cache($post, $event);
+    }
   }
 
   /**

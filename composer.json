@@ -1,0 +1,16 @@
+{
+    "name": "papertower/wp-controllers",
+    "description": "Controllers to work in WordPress the OOP way",
+    "type": "wordpress-plugin",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jason Adams",
+            "email": "jason@papertower.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {"WPControllers\\": "src/"}
+    }
+}

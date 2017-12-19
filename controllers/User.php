@@ -49,16 +49,6 @@ class User {
     $meta;
 
   /**
-   *
-   */
-  public static function _construct() {
-    if ( __CLASS__ === get_called_class() ) {
-      add_action('profile_update', array(__CLASS__, 'profile_update'), 10, 2);
-      add_action('delete_user', array(__CLASS__, 'delete_user'), 10, 2);
-    }
-  }
-
-  /**
    * Retrieve User controller
    * @see http://codex.wordpress.org/Function_Reference/get_user_by
    * @param int|string|object $key user value
@@ -114,9 +104,9 @@ class User {
   }
 
   /**
-   * @param WP_User[] $args
+   * @param array<WP_User> $args
    *
-   * @return User[]
+   * @return array<User>
    */
   public static function get_controllers($args) {
     $users = get_users($args);
@@ -128,26 +118,12 @@ class User {
   }
 
   /**
-   * @param int $user_id
-   * @param WP_User $old_user
+   * Called when the cache for a user controller needs to be flushed. Calls the flush_cache static
+   * method for the class the user belongs to.
+   * @param  WP_User $user  user object that needs to be invalidated
+   * @param  string  $event event which triggered the flush
    */
-  public static function profile_update($user_id, $old_user) {
-    self::clear_controller_cache($old_user);
-  }
-
-  /**
-   * @param int $user_id
-   * @param int $reassign_id
-   */
-  public static function delete_user($user_id, $reassign_id) {
-    $user = get_user_by('id', $user_id);
-    if ( $user ) self::clear_controller_cache($user);
-  }
-
-  /**
-   * @param WP_User $user
-   */
-  public static function clear_controller_cache($user) {
+  public static function trigger_flush_cache($user, $event) {
     wp_cache_delete($user->ID, self::CACHE_GROUP);
     wp_cache_delete($user->data->user_email, self::CACHE_GROUP . '_email');
     wp_cache_delete($user->data->user_nicename, self::CACHE_GROUP . '_slug');

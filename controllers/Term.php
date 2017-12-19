@@ -44,17 +44,6 @@ class Term {
     $meta;
 
   /**
-   *
-   */
-  public static function _construct() {
-    // Apply hooks once
-    if ( __CLASS__ === get_called_class() ) {
-      add_filter('edit_term', array(__CLASS__, 'edited_term'), 10, 3);
-      add_filter('pre_delete_term', array(__CLASS__, 'pre_delete_term'), 10, 2);
-    }
-  }
-
-  /**
    * Retrieve the controller for the term
    * @see https://codex.wordpress.org/Function_Reference/get_term_by
    * @param int|string|object $key term value
@@ -151,22 +140,22 @@ class Term {
     return apply_filters('wp_controllers_term_class', $class, $term);
   }
 
-  public static function edit_term($term_id, $term_taxonomy_id, $taxonomy) {
-    self::clear_controller_cache($term_id, $taxonomy);
-  }
-
-  public static function pre_delete_term($term_id, $taxonomy) {
-    self::clear_controller_cache($term_id, $taxonomy);
-  }
-
-  public static function clear_controller_cache($term_id, $taxonomy) {
-    $term = get_term($term_id, $taxonomy);
-    if ( !$term || is_wp_error($term) ) return;
-
-    wp_cache_delete($term_id, self::CACHE_GROUP);
+  /**
+   * Called when the cache for a term controller needs to be flushed. Calls the flush_cache static
+   * method for the class the term belongs to.
+   * @param  WP_Term $term  term object that needs to be invalidated
+   * @param  string  $event event which triggered the flush
+   */
+  public static function trigger_flush_cache($term, $event) {
+    wp_cache_delete($term->term_id, self::CACHE_GROUP);
     wp_cache_delete($term->slug, self::CACHE_GROUP . '_slug');
     wp_cache_delete($term->name, self::CACHE_GROUP . '_name');
     wp_cache_delete($term->term_taxonomy_id, self::CACHE_GROUP . '_term_taxonomy_id');
+
+    $controller_class = self::get_controller_class($term);
+    if ( $controller_class && method_exists($controller_class, 'flush_cache') ) {
+      $controller_class::flush_cache($term, $event);
+    }
   }
 
   /**

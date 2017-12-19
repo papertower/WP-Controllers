@@ -1,4 +1,5 @@
 <?php
+
 if ( !function_exists('get_post_controller') ) {
   /**
    * Global function to call PostController::get_controller
