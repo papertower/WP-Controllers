@@ -58,6 +58,6 @@ class UserCache extends BaseHandler implements Service {
    * @param  string   $event Event triggering the flush
    */
   private function trigger_flush($user, $event) {
-    Term::trigger_flush_cache($user, $event);
+    User::trigger_flush_cache($user, $event);
   }
 }
