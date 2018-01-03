@@ -93,7 +93,8 @@ class User {
       if ( false !== $controller ) return $controller;
     }
 
-    $controller = new self($user, $options['load_standard_meta']);
+    $controller_class = self::get_controller_class($user);
+    $controller = new $controller_class ($user, $options['load_standard_meta']);
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
     wp_cache_set($controller->email, $controller->id, self::CACHE_GROUP . '_email', MINUTE_IN_SECONDS * 10);
@@ -104,17 +105,39 @@ class User {
   }
 
   /**
-   * @param array<WP_User> $args
-   *
+   * Returns controllers for an array of users or wp_user_query arguments
+   * @param array $args
    * @return array<User>
    */
   public static function get_controllers($args) {
-    $users = get_users($args);
+    if ( isset($args[0]) && ( is_object($args[0]) || is_numeric($args[0]) ) ) {
+      // Turn array of WP_User or id's into controllers
+      $users = $args;
+
+    } elseif ( !empty($args) ) {
+      // Retrieve users via get_users function
+      $users = get_users($args);
+
+    } else {
+      // Just return empty
+      return array();
+    }
+
     $controllers = array();
-    foreach($users as $user)
+    foreach($users as $user) {
       $controllers[] = self::get_controller($user);
+    }
 
     return $controllers;
+  }
+
+  /**
+   * Retrieves the controller class for the WP_User instance
+   * @param  WP_User $user WP_User the controller is for
+   * @return string        Fully qualified controller class
+   */
+  private static function get_controller_class($user) {
+    return apply_filters('wp_controllers_user_class', __CLASS__, $user);
   }
 
   /**
