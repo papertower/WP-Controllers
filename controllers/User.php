@@ -159,7 +159,7 @@ class User {
     }
 
     // Meta class
-    $this->meta = new Meta($this->id, 'post');
+    $this->meta = new Meta($this->id, 'user');
   }
 
   /**
