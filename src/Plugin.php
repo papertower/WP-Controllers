@@ -74,15 +74,15 @@ final class Plugin implements Service {
   public function register_post_type_args($args, $post_type) {
     switch($post_type) {
       case 'post':
-        $args['wp_controller_class'] = 'Post';
+        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", 'Post', $args);
         break;
 
       case 'attachment':
-        $args['wp_controller_class'] = 'Attachment';
+        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", 'Attachment', $args);
         break;
 
       case 'page':
-        $args['wp_controller_class'] = 'Page';
+        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", 'Page', $args);
         break;
     }
 
