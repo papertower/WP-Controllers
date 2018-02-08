@@ -10,7 +10,7 @@ class Meta {
    * @var string $object_type
    * @var array $data
    */
-  private
+  protected
     $object_id,
     $object_type,
     $data = array();
@@ -109,7 +109,7 @@ class Meta {
    * @param null $name
    * @param bool|false $single
    */
-  private function get_meta($key, $name = null, $single = false) {
+  protected function get_meta($key, $name = null, $single = false) {
     $name = is_null($name) ? $key : $name;
     if ( isset($this->data[$name]) ) return;
 
@@ -131,7 +131,7 @@ class Meta {
    *
    * @return mixed|null
    */
-  private function single($value) {
+  protected function single($value) {
     return isset($value[0]) ? $value[0] : null;
   }
 
@@ -140,11 +140,11 @@ class Meta {
    *
    * @return mixed|null
    */
-  private function all($value) {
+  protected function all($value) {
     return is_array($value) ? $value : array();
   }
 
-  private function controllers($values) {
+  protected function controllers($values) {
     if ( is_array($values) ) {
       if ( !empty($values) ) {
         return get_post_controllers($values);
@@ -161,7 +161,7 @@ class Meta {
    *
    * @return PostController
    */
-  private function controller($values) {
+  protected function controller($values) {
     if ( is_array($values) && !empty($values[0]) ) {
       return get_post_controller($values[0]);
     } else {
@@ -169,7 +169,7 @@ class Meta {
     }
   }
 
-  private function date($values, $format) {
+  protected function date($values, $format) {
     if ( empty($values[0]) ) return '';
     return date($format, strtotime($values[0]));
   }
