@@ -34,16 +34,15 @@ class Attachment extends Post {
     // Set standard content
     $this->description  =& $this->content;
     $this->caption      =& $this->excerpt;
+    $this->mime_type    =& $post->post_mime_type;
   }
 
   public function alt() {
-    return isset($this->_alt) ? $this->_alt
-      : $this->_alt = get_post_meta($this->id, '_wp_attachment_image_alt', true);
+    return $this->meta->_wp_attachment_image_alt;
   }
 
   public function mime_type() {
-    return isset($this->_mime_type) ? $this->_mime_type
-      : $this->_mime_type = get_post_mime_type($this->id);
+    return $this->mime_type;
   }
 
   public function link() {
@@ -61,12 +60,11 @@ class Attachment extends Post {
       : filesize($this->path());
   }
 
-
   /**
    * @return string
    */
   public function file_type() {
-    $type = explode('/', $this->mime_type());
+    $type = explode('/', $this->mime_type);
     return empty($type[1]) ? '' : strtoupper($type[1]);
   }
 
