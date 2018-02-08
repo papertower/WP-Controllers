@@ -22,16 +22,17 @@ class Page extends Post {
   /**
    * Returns controllers for an array of posts or get_pages arguments
    * @since 0.7.0
-   * @param array $args Either an array of WP_Post objects or get_pages arguments
-   * @return array
+   * @param   array $args     Either an array of WP_Post objects or get_pages arguments
+   * @param   array $options  Options for the controllers
+   * @return  array
    */
-  public static function get_controllers($args = null) {
+  public static function get_controllers($args = null, $options = array()) {
     if ( empty($args) || isset($args[0]) ) {
       return parent::get_controllers($args);
     }
 
     $pages = get_pages($args);
-    return self::get_controllers($pages);
+    return self::get_controllers($pages, $options);
   }
 
   /**

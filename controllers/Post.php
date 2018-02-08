@@ -121,7 +121,7 @@ class Post {
     }
 
     // Construct, cache, and return post
-    $controller_class = self::get_controller_class($_post);
+    $controller_class = self::get_controller_class($_post, $options);
     $controller = new $controller_class ($_post);
 
     wp_cache_set($controller->slug, $controller->id, 'postcontroller_slug', MINUTE_IN_SECONDS * 10);
@@ -136,7 +136,7 @@ class Post {
    * @param array $args Either an array of WP_Post objects or get_posts arguments
    * @return array
    */
-  public static function get_controllers($args = null) {
+  public static function get_controllers($args = null, $options = array()) {
     if ( is_null($args) ) {
       // Retrieve archive posts
       global $wp_query;
@@ -162,7 +162,7 @@ class Post {
 
     $controllers = array();
     foreach($posts as $post) {
-      $controllers[] = self::get_controller($post);
+      $controllers[] = self::get_controller($post, $options);
     }
 
     return $controllers;
@@ -170,10 +170,11 @@ class Post {
 
   /**
    * Returns the class name for the corresponding post
-   * @param  WP_Post $post  WP_Post to get the class for
-   * @return string         Class name
+   * @param  WP_Post $post    WP_Post to get the class for
+   * @param  array   $options Options passed for the post
+   * @return string           Class name
    */
-  private static function get_controller_class($post) {
+  private static function get_controller_class($post, $options = array()) {
     // Check for template-specific controller first
     $class = self::get_template_class($post);
     if ( $class ) return $class;
@@ -198,7 +199,7 @@ class Post {
         : __CLASS__;
     }
 
-    return apply_filters('wp_controllers_post_class', $class, $post);
+    return apply_filters('wp_controllers_post_class', $class, $post, $options);
   }
 
   /**
@@ -249,6 +250,15 @@ class Post {
   }
 
   /**
+   * Returns the meta class to be used for the post
+   * @param  WP_Post $post Post the meta class will be used for
+   * @return string        Meta class
+   */
+  protected static function get_meta_class($post) {
+    return apply_filters('wp_controllers_meta_class', 'Meta', $post);
+  }
+
+  /**
    * Constructor.
    * Protect the constructor as we do not want the controllers
    * to be instantiated directly. This is to ensure caching.
@@ -280,7 +290,8 @@ class Post {
     $this->modified_gmt =& $this->post->post_modified_gmt;
 
     // Meta class
-    $this->meta = new Meta($this->id, 'post');
+    $meta_class = static::get_meta_class($post);
+    $this->meta = new $meta_class($this->id, 'post');
   }
 
   /**
@@ -328,7 +339,7 @@ class Post {
     }
 
     $posts = get_posts($arguments);
-    return isset($posts[0]) ? self::get_controller($posts[0]) : false;
+    return isset($posts[0]) ? static::get_controller($posts[0]) : false;
   }
 
   /**
@@ -476,7 +487,7 @@ class Post {
     if ( count($args['tax_query']) === 1 )
       return null;
 
-    return self::get_controllers($args);
+    return static::get_controllers($args);
   }
 
   /**
@@ -486,8 +497,8 @@ class Post {
    * @return object|null
    */
   public function featured_image($options = array()) {
-    $id = get_post_thumbnail_id($this->id);
-    return $id ? self::get_controller( $id, $options ) : null;
+    $id = $this->meta->_thumbnail_id('single');
+    return $id ? static::get_controller( $id, $options ) : null;
   }
 
   /**
@@ -587,7 +598,7 @@ class Post {
 
       $term->posts = array();
       foreach($posts as $post)
-        $term->posts[] = self::get_controller($post);
+        $term->posts[] = static::get_controller($post);
 
       $categorized_posts[] = $term;
     }
@@ -612,7 +623,7 @@ class Post {
         $exclude = array();
     }
 
-    return self::get_controllers(array(
+    return static::get_controllers(array(
       'post_type'   => static::$controller_post_type,
       'numberposts' => $numberposts,
       'post__not_in'=> $exclude
@@ -645,7 +656,7 @@ class Post {
     if ( $count !== -1 )
       $ids = array_slice($ids, 0, $count);
 
-    return self::get_controllers(array(
+    return static::get_controllers(array(
       'post_type'   => $post_type,
       'numberposts' => $count,
       'post__in'    => $ids
