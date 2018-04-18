@@ -110,7 +110,7 @@ final class Plugin implements Service {
       if ( file_exists("$directory/$base_class.php") ) {
         $include = "$directory/$base_class.php";
       } elseif ( file_exists("$directory/$lower_class.php") ) {
-        $include = "$directory/$lower_class";
+        $include = "$directory/$lower_class.php";
       } else {
         continue;
       }
