@@ -15,7 +15,7 @@ class PostCache extends BaseHandler implements Service {
    */
   public function register() {
     add_filter('wp_insert_post', [$this, 'wp_insert_post'], 10, 3);
-    add_action('pre_delete_post', [$this, 'pre_delete_post']);
+    add_action('before_delete_post', [$this, 'before_delete_post']);
   }
 
   /**
@@ -29,12 +29,12 @@ class PostCache extends BaseHandler implements Service {
   }
 
   /**
-   * Callback for the pre_delete_post action, used to invalidate the cache
+   * Callback for the before_delete_post action, used to invalidate the cache
    * @ignore
    */
-  public function pre_delete_post($post_id) {
+  public function before_delete_post($post_id) {
     $post = get_post($post_id);
-    if ( 'revision' !== $post && !did_action('pre_delete_post') ) {
+    if ( 'revision' !== $post && !did_action('before_delete_post') ) {
       $this->trigger_flush($post, self::EVENT_DELETE);
     }
   }
