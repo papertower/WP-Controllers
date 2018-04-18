@@ -1,5 +1,10 @@
 <?php
 
+use \WPControllers\Post;
+use \WPControllers\Page;
+use \WPControllers\Term;
+use \WPControllers\User;
+
 if ( !function_exists('get_post_controller') ) {
   /**
    * Global function to call PostController::get_controller
@@ -8,7 +13,7 @@ if ( !function_exists('get_post_controller') ) {
    * @param string|null $key
    * @param array $options
    *
-   * @return PostController
+   * @return Post
    */
   function get_post_controller($key = null, $options = array()) { return Post::get_controller($key, $options); }
 }
@@ -20,7 +25,7 @@ if ( !function_exists('get_post_controllers') ) {
    *
    * @param array $args
    *
-   * @return array
+   * @return Post[]
    */
   function get_post_controllers($args = null) { return Post::get_controllers($args); }
 }
@@ -41,6 +46,13 @@ if ( !function_exists('get_term_controller') ) {
   /**
    * Global function to call Term::get_controller
    * @see Term::get_controller
+   *
+   * @param string $key
+   * @param string $taxonomy
+   * @param string $field
+   * @param array $options
+   *
+   * @return Term
    */
   function get_term_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
     return Term::get_controller($key, $taxonomy, $field, $options);
@@ -49,14 +61,12 @@ if ( !function_exists('get_term_controller') ) {
 
 if ( !function_exists('get_term_controllers') ) {
   /**
-   * Global function to call Term::get_controller
+   * Global function to call Term::get_controllers
    * @see Term::get_controller
    *
-   * @param string|null $key
-   * @param string $field
-   * @param array $options
+   * @param $args array
    *
-   * @return Term
+   * @return array
    */
   function get_term_controllers($args) {
     return Term::get_controllers($args);
@@ -65,7 +75,7 @@ if ( !function_exists('get_term_controllers') ) {
 
 if ( !function_exists('get_user_controller') ) {
   /**
-   * Global function to calll User::get_controller
+   * Global function to call User::get_controller
    * @see User::get_controller
    *
    * @param string|null $key

@@ -1,6 +1,17 @@
 <?php
-/*
- * @author Jason Adams <jason.the.adams@gmail.com>
+
+namespace WPControllers;
+
+use \WP_Error;
+use \WP_Term;
+
+/**
+ * Base Term Controller.
+ * This is a [decorator](http://en.wikipedia.org/wiki/Decorator_pattern) class for the
+ * native WP_Term class. It extends it with common controller functions as well as
+ * expanding on the general functionality. All other term controllers inherit from this.
+ *
+ * @version 0.7.0
  */
 class Term {
 
@@ -30,6 +41,7 @@ class Term {
    * @var string $taxonomy
    * @var int $taxonomy_id
    * @var int $count
+   * @var int $parent
    * @var Meta $meta
    */
   public
@@ -41,6 +53,7 @@ class Term {
     $taxonomy,
     $taxonomy_id,
     $count,
+    $parent,
     $meta;
 
   /**
@@ -50,7 +63,7 @@ class Term {
    * @param string $taxonomy taxonomy name
    * @param string $field field to retrieve by
    * @param array $options controller options
-   * @return Term
+   * @return Term|WP_Error
    */
   public static function get_controller($key = null, $taxonomy = null, $field = 'id', $options = array()) {
     if ( is_object($key) ) {
@@ -229,7 +242,7 @@ class Term {
    * Returns the posts that have this term
    * @param  string  $post_type post type(s) to limit the query to; default: any
    * @param  integer $count     the number of posts to return; default: -1
-   * @return Post               Post controller
+   * @return Post[]             Post controllers
    */
   public function posts($post_type = 'any', $count = -1) {
     if ( !$this->count ) return array();
@@ -248,7 +261,7 @@ class Term {
 
   /**
    * @param $post_type
-   * @return
+   * @return Post|null
    */
   public function oldest_post($post_type) {
     if ( !$this->count ) return null;
@@ -266,9 +279,17 @@ class Term {
       )
     ));
 
-    if ( !empty($Post) ) return $Post[0];
+    return empty($Post) ? $Post[0] : null;
   }
 
+  /**
+   * Returns the distinct terms for an array of posts
+   *
+   * @param array $posts
+   * @param string $fields
+   *
+   * @return array|null|object
+   */
   public static function distinct_post_terms(array $posts, $fields = '') {
     $ids = array();
     foreach($posts as $post) {
@@ -276,14 +297,15 @@ class Term {
         $ids[] = absint($post);
       elseif ( is_a($post, 'WP_Post') )
         $ids[] = $post->ID;
-      elseif ( is_a($post, 'PostController') )
+      elseif ( is_a($post, 'Post') )
         $ids[] = $post->id;
     }
 
     if ( empty($ids) ) return array();
 
     global $wpdb;
-    $ids = array_map( 'intval', implode(',', $ids) );
+    $ids = array_map( 'intval', $ids );
+    $ids = implode(',', $ids);
 
     $query = "
       SELECT DISTINCT t.term_id, t.name, t.slug, t.term_group

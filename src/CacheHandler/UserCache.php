@@ -2,8 +2,8 @@
 
 namespace WPControllers\CacheHandler;
 
-use WPControllers\Service;
-use \User;
+use \WPControllers\Plugin\Service;
+use \WPControllers\User;
 
 /**
  * Handles clearing the cache for the User controller

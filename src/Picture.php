@@ -1,7 +1,10 @@
 <?php
 
+namespace WPControllers;
+
 /**
  * Class Picture
+ * Extends the attachment post type for posts that are an image mime type. Provides functionality unique to pictures.
  */
 class Picture extends Attachment {
   /**

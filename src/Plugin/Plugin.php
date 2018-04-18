@@ -1,6 +1,10 @@
 <?php
 
-namespace WPControllers;
+namespace WPControllers\Plugin;
+
+use \WPControllers\CacheHandler\PostCache;
+use \WPControllers\CacheHandler\TermCache;
+use \WPControllers\CacheHandler\UserCache;
 
 final class Plugin implements Service {
   /**
@@ -54,9 +58,9 @@ final class Plugin implements Service {
 
   public function registerCacheServices() {
     $services = [
-      CacheHandler\PostCache::class,
-      CacheHandler\TermCache::class,
-      CacheHandler\UserCache::class
+      PostCache::class,
+      TermCache::class,
+      UserCache::class
     ];
 
     foreach($services as $service) {
@@ -135,6 +139,7 @@ final class Plugin implements Service {
       $child_theme = apply_filters('wp_controllers_child_theme_directory', "$child_theme/wp-controllers");
       if ( is_dir($child_theme) ) {
         $this->_directories[] = $child_theme;
+        $this->trigger_deprecation_notice($child_theme);
       }
     }
 
@@ -142,6 +147,7 @@ final class Plugin implements Service {
     $parent_theme = apply_filters('wp_controllers_theme_directory', "$parent_theme/wp-controllers");
     if ( is_dir($parent_theme) ) {
       $this->_directories[] = $parent_theme;
+      $this->trigger_deprecation_notice($parent_theme);
     }
 
     // Include necessary plugin functions if front-end
@@ -157,9 +163,19 @@ final class Plugin implements Service {
         $path = strstr($path, DIRECTORY_SEPARATOR, true);
         $directory = apply_filters('wp_controllers_plugin_directory', "$plugins_path/$path/wp-controllers", $path, $data);
         if ( is_dir($directory) ) {
+          $this->trigger_deprecation_notice($path);
           $this->_directories[] = $directory;
         }
       }
+    }
+  }
+
+  /**
+   * @param string $source Plugin or theme the warning is for
+   */
+  private function trigger_deprecation_notice(string $source) {
+    if ( defined('WP_DEBUG') && WP_DEBUG ) {
+      trigger_error("Warning for $source: Auto-loading from WP Controllers will be deprecated by 1.0. We suggest adding your own PSR-4 auto-loading.", E_USER_WARNING);
     }
   }
 }

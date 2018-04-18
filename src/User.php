@@ -1,7 +1,17 @@
 <?php
 
+namespace WPControllers;
+
+use \WP_Error;
+use \WP_User;
+
 /**
- * Class User
+ * Base User Controller.
+ * This is a [decorator](http://en.wikipedia.org/wiki/Decorator_pattern) class for the
+ * native WP_User class. It extends it with common controller functions as well as
+ * expanding on the general functionality. All other user controllers inherit from this.
+ *
+ * @version 0.7.0
  */
 class User {
 
@@ -54,7 +64,7 @@ class User {
    * @param int|string|object $key user value
    * @param string $field field to retrieve by
    * @param array $options controller options
-   * @return User
+   * @return User|WP_Error
    */
   public static function get_controller($key = null, $field = 'id', $options = array()) {
     $options = wp_parse_args($options, array(
@@ -63,7 +73,7 @@ class User {
 
     if ( is_object($key) ) {
       $user = wp_cache_get($key->ID, self::CACHE_GROUP);
-      if ( false !== $user ) return $controller;
+      if ( false !== $user ) return $user;
       $user = $key;
 
     } elseif ( $key ) {

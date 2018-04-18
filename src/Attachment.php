@@ -1,7 +1,12 @@
 <?php
 
+namespace WPControllers;
+
+use \WP_Post;
+
 /**
  * Class Attachment
+ * This extends the attachment post type, providing additional methods
  */
 class Attachment extends Post {
 
@@ -21,6 +26,7 @@ class Attachment extends Post {
   public
     $is_image = false,
     $description,
+    $mime_type,
     $caption;
 
   /**

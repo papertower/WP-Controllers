@@ -2,8 +2,8 @@
 
 namespace WPControllers\CacheHandler;
 
-use WPControllers\Service;
-use \Term;
+use \WPControllers\Plugin\Service;
+use \WPControllers\Term;
 
 /**
  * Handles clearing the cache for the Term controller

@@ -1,7 +1,10 @@
 <?php
 
+namespace WPControllers;
+
 /**
  * Class Meta
+ * The meta class for all controllers. Provides a quick and cached way of accessing meta for objects.
  */
 class Meta {
 
@@ -98,7 +101,6 @@ class Meta {
    * For example, if a key is 'my-field', the hyphen is not set
    * @param string $key key used in the database
    * @param string $name name to store under for future retrieval
-   * @return mixed
    */
   public function store($key, $name) {
     $this->get_meta($key, $name);
@@ -136,7 +138,7 @@ class Meta {
   }
 
   /**
-   * @param string $key
+   * @param $value
    *
    * @return mixed|null
    */
@@ -159,13 +161,13 @@ class Meta {
   /**
    * @param array $values
    *
-   * @return PostController
+   * @return Post|null
    */
   protected function controller($values) {
     if ( is_array($values) && !empty($values[0]) ) {
       return get_post_controller($values[0]);
     } else {
-      return $values;
+      return null;
     }
   }
 

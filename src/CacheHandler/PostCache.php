@@ -2,8 +2,8 @@
 
 namespace WPControllers\CacheHandler;
 
-use WPControllers\Service;
-use \Post;
+use \WPControllers\Plugin\Service;
+use \WPControllers\Post;
 
 /**
  * Handles clearing the cache for the Post controller

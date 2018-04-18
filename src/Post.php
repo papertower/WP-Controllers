@@ -1,16 +1,17 @@
 <?php
-/**
- * The Post class and get_post_controller functions
- */
+
+namespace WPControllers;
+
+use \WP_Error;
+use \WP_Post;
 
 /**
  * Base Post Controller.
  * This is a [decorator](http://en.wikipedia.org/wiki/Decorator_pattern) class for the
- * native WP_POST class. It extends it with common controller functions as well as
- * expanding on the general functionality. All other post contollers inherit from this.
+ * native WP_Post class. It extends it with common controller functions as well as
+ * expanding on the general functionality. All other post controllers inherit from this.
  *
  * @version 0.7.0
- * @author Jason Adams <jason.the.adams@gmail.com>
  */
 class Post {
   /**
@@ -77,7 +78,7 @@ class Post {
    * @since 0.7.0
    * @param string|int|object $key post id, slug, or WP_Post object
    * @param array $options
-   * @return Post
+   * @return Post|WP_Error
    */
   public static function get_controller($key = null, $options = array()) {
     if ( is_null($key) ) {
@@ -133,7 +134,10 @@ class Post {
   /**
    * Returns controllers for an array of posts or wp_query arguments
    * @since 0.7.0
-   * @param array $args Either an array of WP_Post objects or get_posts arguments
+   *
+   * @param array $args     Either an array of WP_Post objects or get_posts arguments
+   * @param array $options  Options to pass with the get_controllers function
+   *
    * @return array
    */
   public static function get_controllers($args = null, $options = array()) {
@@ -143,7 +147,8 @@ class Post {
       if ( isset($wp_query->posts) ) {
         $posts = $wp_query->posts;
       } else {
-        return new WP_Error('no_posts_found', 'No posts were found in the wp_query. This must be used within a single or archive template.');
+        trigger_error('No posts found in the wp_query. Please use this only in a post archive template.', E_USER_WARNING);
+        return array();
       }
 
     } elseif ( isset($args[0]) && ( is_object($args[0]) || is_numeric($args[0]) ) ) {
@@ -638,7 +643,7 @@ class Post {
    * @since 0.5.0
    * @param int           $count      the number of posts to return randomized
    * @param array|string  $post_type  (optional) post type name or array thereof
-   * @return object                   array of controllers or empty array
+   * @return array                    array of controllers or empty array
    */
   public static function random_posts($count = -1, $post_type = null) {
     $post_type = ( $post_type ) ? $post_type : static::$controller_post_type;

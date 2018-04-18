@@ -1,6 +1,6 @@
 <?php
 
-namespace WPControllers;
+namespace WPControllers\Plugin;
 
 /**
  * Creates and manages the single plugin instance

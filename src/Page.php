@@ -1,7 +1,10 @@
 <?php
 
+namespace WPControllers;
+
 /**
  * Class Page
+ * Extends the page post type with methods unique to pages.
  */
 class Page extends Post {
 
@@ -12,8 +15,8 @@ class Page extends Post {
     $controller_post_type = 'page';
 
   /**
-   * @var PostController $_parent
-   * @var PostController[] $_children
+   * @var Post $_parent
+   * @var Post[] $_children
    */
   protected
     $_parent,
