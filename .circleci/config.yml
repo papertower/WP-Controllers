@@ -29,5 +29,8 @@ jobs:
             - ./vendor
           key: v1-dependencies-{{ checksum "composer.json" }}
 
+      # set up WordPress tables
+      - run: ./bin/install-wp-tests.sh wordpress-tests root ""
+
       # run tests!
       - run: ./vendor/bin/phpunit
