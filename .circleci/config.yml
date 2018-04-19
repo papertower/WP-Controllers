@@ -21,8 +21,8 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
+      - run: composer require --dev phpunit/phpunit
       - run: composer install -n --prefer-dist
-      - run: composer install phpunit
 
       - save_cache:
           paths:
