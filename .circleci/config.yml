@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       - image: circleci/php:7.1-node-browsers
-      - image: circleci/mysql
+#      - image: circleci/mysql
 
     working_directory: ~/repo
 
@@ -21,7 +21,8 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: sudo apt-get install subversion
+      - run: sudo apt-get install subversion mysql-server
+
       - run: composer require --dev phpunit/phpunit
       - run: composer install -n --prefer-dist
 
