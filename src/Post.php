@@ -422,7 +422,7 @@ class Post {
 
   /**
    * Returns the author User controller
-   * @return object
+   * @return User|WP_Error
    */
   public function author() {
     if ( isset($this->_author) ) return $this->_author;
