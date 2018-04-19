@@ -6,9 +6,9 @@
  * Time: 2:43 PM
  */
 
-use \WPControllers\Post;
+namespace WPControllers;
 
-class PostTest extends WP_UnitTestCase {
+class PostTest extends \WP_UnitTestCase {
   public function test_get_controller() {
     $post = $this->factory()->post->create_and_get();
 
@@ -31,13 +31,6 @@ class PostTest extends WP_UnitTestCase {
     $this->assertEquals($post->ID, $controller->id);
   }
 
-  public function test_url() {
-    $post = $this->factory()->post->create_and_get();
-    $controller = Post::get_controller($post);
-
-    $this->assertSame(get_permalink($post), $controller->url());
-  }
-
   public function test_wp_post_properties() {
     $post = $this->factory()->post->create_and_get();
     $controller = Post::get_controller($post);
@@ -46,5 +39,58 @@ class PostTest extends WP_UnitTestCase {
     foreach($properties as $key => $value) {
       $this->assertSame($value, $controller->$key, "Post controller should support the WP_Post->$key property");
     }
+  }
+
+  public function test_url() {
+    $post = $this->factory()->post->create_and_get();
+    $controller = Post::get_controller($post);
+
+    $this->assertSame(get_permalink($post), $controller->url());
+  }
+
+  public function test_archive_url() {
+    $this->assertEquals(get_post_type_archive_link('post'), Post::archive_url());
+  }
+
+  public function test_author() {
+    $user = $this->factory()->user->create_and_get();
+    $post = $this->factory()->post->create_and_get([
+      'post_author'   => $user->ID
+    ]);
+
+    $post_controller = Post::get_controller($post);
+    $user_controller = $post_controller->author();
+
+    $this->assertEquals($user->ID, $user_controller->id);
+  }
+
+  public function test_date() {
+    $post = $this->factory()->post->create_and_get();
+    $controller = Post::get_controller($post);
+
+    // Local timezone
+    $timestamp = strtotime($post->post_date);
+    $this->assertSame($timestamp, $controller->date('timestamp'));
+    $this->assertSame(date('d:m:Y', $timestamp), $controller->date('d:m:Y'));
+
+    // GMT
+    $timestamp = strtotime($post->post_date_gmt);
+    $this->assertSame($timestamp, $controller->date('timestamp', true));
+    $this->assertSame(date('d:m:Y', $timestamp), $controller->date('d:m:Y', true));
+  }
+
+  public function test_modified() {
+    $post = $this->factory()->post->create_and_get();
+    $controller = Post::get_controller($post);
+
+    // Local timezone
+    $timestamp = strtotime($post->post_modified);
+    $this->assertSame($timestamp, $controller->modified('timestamp'));
+    $this->assertSame(date('d:m:Y', $timestamp), $controller->modified('d:m:Y'));
+
+    // GMT
+    $timestamp = strtotime($post->post_modified_gmt);
+    $this->assertSame($timestamp, $controller->modified('timestamp', true));
+    $this->assertSame(date('d:m:Y', $timestamp), $controller->modified('d:m:Y', true));
   }
 }
