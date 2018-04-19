@@ -342,6 +342,8 @@ class Post {
         return $this->$short_key;
       }
     }
+
+    return null;
   }
 
   public function __isset($name) {
@@ -349,6 +351,8 @@ class Post {
       $short_key = substr($name, 5);
       return isset($this->$short_key);
     }
+
+    return false;
   }
 
 
