@@ -22,6 +22,7 @@ jobs:
           - v1-dependencies-
 
       - run: composer install -n --prefer-dist
+      - run: composer install phpunit
 
       - save_cache:
           paths:
@@ -29,4 +30,4 @@ jobs:
           key: v1-dependencies-{{ checksum "composer.json" }}
 
       # run tests!
-      - run: phpunit
+      - run: ./vendor/bin/phpunit
