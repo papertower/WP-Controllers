@@ -260,7 +260,7 @@ class Post {
    * @return string        Meta class
    */
   protected static function get_meta_class($post) {
-    return apply_filters('wp_controllers_meta_class', 'Meta', $post);
+    return apply_filters('wp_controllers_meta_class', Meta::class, $post);
   }
 
   /**

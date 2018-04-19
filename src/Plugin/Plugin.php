@@ -6,6 +6,10 @@ use \WPControllers\CacheHandler\PostCache;
 use \WPControllers\CacheHandler\TermCache;
 use \WPControllers\CacheHandler\UserCache;
 
+use \WPControllers\Post;
+use \WPControllers\Page;
+use \WPControllers\Attachment;
+
 final class Plugin implements Service {
   /**
    * All the directories to look in when autoloading
@@ -78,15 +82,15 @@ final class Plugin implements Service {
   public function register_post_type_args($args, $post_type) {
     switch($post_type) {
       case 'post':
-        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", 'Post', $args);
+        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", Post::class, $args);
         break;
 
       case 'attachment':
-        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", 'Attachment', $args);
+        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", Attachment::class, $args);
         break;
 
       case 'page':
-        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", 'Page', $args);
+        $args['wp_controller_class'] = apply_filters("wp_controllers_default_{$post_type}_class", Page::class, $args);
         break;
     }
 
