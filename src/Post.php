@@ -52,6 +52,14 @@ class Post {
    * @var string date_gmt
    * @var string modified
    * @var string modified_gmt
+   * @var string password
+   * @var string to_ping
+   * @var string pinged
+   * @var string guide
+   * @var string filter
+   * @var string ping_status
+   * @var string mime_type
+   * @var string content_filtered
    * @var Meta   meta
    */
   public
@@ -71,6 +79,14 @@ class Post {
     $date_gmt,
     $modified,
     $modified_gmt,
+    $password,
+    $to_ping,
+    $pinged,
+    $ping_status,
+    $guid,
+    $filter,
+    $mime_type,
+    $content_filtered,
     $meta;
 
   /**
@@ -272,32 +288,69 @@ class Post {
    */
   protected function __construct($post) {
     // Standard Properties
-    $this->post       =& $post;
-    $this->id         =& $this->post->ID;
-    $this->slug       =& $this->post->post_name;
-    $this->title      =& $this->post->post_title;
-    $this->excerpt    =& $this->post->post_excerpt;
-    $this->content    =& $this->post->post_content;
-    $this->status     =& $this->post->post_status;
-    $this->type       =& $this->post->post_type;
-    $this->parent_id  =& $this->post->post_parent;
-    $this->author     =& $this->post->post_author;
-    $this->menu_order =& $this->post->menu_order;
+    $this->post       = $post;
+    $this->id         = $this->post->ID;
+    $this->slug       = $this->post->post_name;
+    $this->title      = $this->post->post_title;
+    $this->excerpt    = $this->post->post_excerpt;
+    $this->content    = $this->post->post_content;
+    $this->status     = $this->post->post_status;
+    $this->type       = $this->post->post_type;
+    $this->parent_id  = $this->post->post_parent;
+    $this->author     = $this->post->post_author;
+    $this->menu_order = $this->post->menu_order;
+    $this->password   = $this->post->post_password;
+    $this->to_ping    = $this->post->to_ping;
+    $this->pinged     = $this->post->pinged;
+    $this->guid       = $this->post->guid;
+    $this->filter     = $this->post->filter;
+    $this->ping_status = $this->post->ping_status;
+    $this->mime_type = $this->post->post_mime_type;
+    $this->content_filtered = $this->post->post_content_filtered;
 
     // Comments
-    $this->comment_count  =& $this->post->comment_count;
-    $this->comment_status =& $this->post->comment_status;
+    $this->comment_count  = $this->post->comment_count;
+    $this->comment_status = $this->post->comment_status;
 
     // Dates
-    $this->date         =& $this->post->post_date;
-    $this->date_gmt     =& $this->post->post_date_gmt;
-    $this->modified     =& $this->post->post_modified;
-    $this->modified_gmt =& $this->post->post_modified_gmt;
+    $this->date         = $this->post->post_date;
+    $this->date_gmt     = $this->post->post_date_gmt;
+    $this->modified     = $this->post->post_modified;
+    $this->modified_gmt = $this->post->post_modified_gmt;
 
     // Meta class
     $meta_class = static::get_meta_class($post);
     $this->meta = new $meta_class($this->id, 'post');
   }
+
+  public function __get($name) {
+    if ( 'ID' === $name ) {
+      return $this->id;
+    }
+
+    if ( 'post_name' === $name ) {
+      return $this->slug;
+    }
+
+    if ( 'post_parent' === $name ) {
+      return $this->parent_id;
+    }
+
+    if ( 0 === strpos($name, 'post_') ) {
+      $short_key = substr($name, 5);
+      if ( isset($this->$short_key) ) {
+        return $this->$short_key;
+      }
+    }
+  }
+
+  public function __isset($name) {
+    if ( 0 === strpos($name, 'post_') ) {
+      $short_key = substr($name, 5);
+      return isset($this->$short_key);
+    }
+  }
+
 
   /**
    * Returns adjacent post controller.
