@@ -14,15 +14,12 @@ jobs:
     steps:
       - checkout
 
+      # Install mysql server for mysqladmin CLI
       - run: sudo apt-get install subversion mysql-server
 
-      - run: composer require --dev phpunit/phpunit
+      # Grab composer libraries
+      - run: composer require --dev phpunit/phpunit ^6.5
       - run: composer install -n --prefer-dist
-
-      - save_cache:
-          paths:
-            - ./vendor
-          key: v1-dependencies-{{ checksum "composer.json" }}
 
       # set up WordPress tables
       - run: ./bin/install-wp-tests.sh wordpress-tests root ""
