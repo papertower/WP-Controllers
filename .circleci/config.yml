@@ -6,23 +6,26 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/php:7.1-node-browsers
-      - image: circleci/mysql
+      - image: circleci/php:7.2
 
     working_directory: ~/repo
 
     steps:
       - checkout
 
-      # Install mysql server for mysqladmin CLI
-      - run: sudo apt-get install subversion mysql-server
+      - run:
+        name: Install Subversion & MySQL Admin
+        command: sudo apt-get install subversion mysql-server
 
-      # Grab composer libraries
-      - run: composer require --dev phpunit/phpunit ^6.5
-      - run: composer install -n --prefer-dist
+      - run:
+        name: Install PHPUnit
+        command: wget https://phar.phpunit.de/phpunit-6.5.phar
 
-      # set up WordPress tables
-      - run: ./bin/install-wp-tests.sh wordpress-tests root ""
+      - run:
+        name: Set up WordPress
+        command: ./bin/install-wp-tests.sh wordpress-tests root ""
 
       # run tests!
-      - run: ./vendor/bin/phpunit
+      - run:
+        name: Running Tests
+        command: php phpunit-6.5.phar
