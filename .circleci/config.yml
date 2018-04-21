@@ -7,6 +7,7 @@ jobs:
   build:
     docker:
       - image: circleci/php:7.2
+      - image: circleci/mysql
 
     working_directory: ~/repo
 
@@ -14,18 +15,17 @@ jobs:
       - checkout
 
       - run:
-        name: Install Subversion & MySQL Admin
-        command: sudo apt-get install subversion mysql-server
+          name: Install Subversion & MySQL Admin
+          command: sudo apt-get install subversion mysql-server
 
       - run:
-        name: Install PHPUnit
-        command: wget https://phar.phpunit.de/phpunit-6.5.phar
+          name: Install PHPUnit
+          command: wget https://phar.phpunit.de/phpunit-6.5.phar
 
       - run:
-        name: Set up WordPress
-        command: ./bin/install-wp-tests.sh wordpress-tests root ""
+          name: Set up WordPress
+          command: ./bin/install-wp-tests.sh wordpress-tests root ""
 
-      # run tests!
       - run:
-        name: Running Tests
-        command: php phpunit-6.5.phar
+          name: Running Tests
+          command: php phpunit-6.5.phar
