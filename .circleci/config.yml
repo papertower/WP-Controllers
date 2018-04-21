@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       - image: circleci/php:7.2
-      - image: circleci/mysql
+      - image: circleci/mysql:5.7
 
     working_directory: ~/repo
 
