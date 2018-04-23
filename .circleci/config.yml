@@ -37,7 +37,6 @@ jobs:
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash tests/bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1
             phpunit
-            WP_MULTISITE=1 phpunit
 
   php70-build:
     docker:
@@ -68,7 +67,6 @@ jobs:
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash tests/bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
             phpunit
-            WP_MULTISITE=1 phpunit
 
   php71-build:
     docker:
@@ -99,4 +97,3 @@ jobs:
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash tests/bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1 latest
             phpunit
-            WP_MULTISITE=1 phpunit
