@@ -220,7 +220,7 @@ class Post {
    *
    * @return string|false   Post type name if found, otherwise false
    */
-  public static function get_controller_post_type(string $class, $post_type_controllers = null, $template_controllers = null) {
+  public static function get_controller_post_type($class, $post_type_controllers = null, $template_controllers = null) {
     if ( !$class ) {
       return false;
     }
@@ -452,7 +452,7 @@ class Post {
    * @return string
    */
   public static function archive_url() {
-    return get_post_type_archive_link(self::get_controller_post_type(static::class));
+    return get_post_type_archive_link(self::get_controller_post_type(get_called_class()));
   }
 
   /**
@@ -682,7 +682,7 @@ class Post {
 
     foreach($terms as $term) {
       $posts = get_posts(array(
-        'post_type'    => self::get_controller_post_type(static::class),
+        'post_type'    => self::get_controller_post_type(get_called_class()),
         'numberposts'  => -1,
         'tax_query'    => array(
           array(
@@ -721,7 +721,7 @@ class Post {
     }
 
     return static::get_controllers(array(
-      'post_type'   => self::get_controller_post_type(static::class),
+      'post_type'   => self::get_controller_post_type(get_called_class()),
       'numberposts' => $numberposts,
       'post__not_in'=> $exclude
     ));
@@ -738,7 +738,7 @@ class Post {
    * @return array                    array of controllers or empty array
    */
   public static function random_posts($count = -1, $post_type = null) {
-    $post_type = ( $post_type ) ? $post_type : self::get_controller_post_type(static::class);
+    $post_type = ( $post_type ) ? $post_type : self::get_controller_post_type(get_called_class());
 
     $ids = get_posts(array(
       'post_type'   => $post_type,
