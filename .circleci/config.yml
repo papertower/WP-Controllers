@@ -20,22 +20,18 @@ job-references:
             sudo docker-php-ext-install mysqli
             sudo sh -c "printf '\ndeb http://ftp.us.debian.org/debian sid main\n' >> /etc/apt/sources.list"
             sudo apt-get update && sudo apt-get install mysql-client-5.7
+
       - run:
-          name: "Run Tests"
+          name: "Setup For Tests"
           command: |
             composer global require "phpunit/phpunit=5.7.*"
             rm -rf $WP_TESTS_DIR $WP_CORE_DIR
             bash tests/bin/install-wp-tests.sh wordpress_test root '' 127.0.0.1
-            phpunit
 
+      - run:
+          name: "Run Tests"
+          command: phpunit
 
-workflows:
-  version: 2
-  main:
-    jobs:
-      - php56-build
-      - php70-build
-      - php71-build
 
 jobs:
   php56-build:
@@ -55,3 +51,18 @@ jobs:
     docker:
       - image: circleci/php:7.1
       - image: circleci/mysql:5.6
+
+  php72-build:
+    <<: *php_job
+    docker:
+      - image: circleci/php:7.2
+      - image: circleci/mysql:5.6
+
+workflows:
+  version: 2
+  main:
+    jobs:
+      - php56-build
+      - php70-build
+      - php71-build
+      - php72-build
