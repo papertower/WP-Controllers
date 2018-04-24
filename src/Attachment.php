@@ -9,13 +9,6 @@ use \WP_Post;
  * This extends the attachment post type, providing additional methods
  */
 class Attachment extends Post {
-
-  /**
-   * @var string $post_type
-   */
-  public static
-    $controller_post_type  = 'attachment';
-
   /**
    * @var string $description
    * @var string $caption

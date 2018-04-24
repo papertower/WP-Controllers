@@ -15,12 +15,6 @@ use \WP_Post;
  */
 class Post {
   /**
-   * @var string $post_type
-   */
-  public static
-    $controller_post_type = 'post';
-
-  /**
    * @var array $_controller_templates        template_slug => controller
    * @var array $_controller_post_types       post_type => controller
    */
@@ -195,21 +189,14 @@ class Post {
    * @param  array   $options Options passed for the post
    * @return string           Class name
    */
-  private static function get_controller_class($post, $options = array()) {
+  public static function get_controller_class($post, $options = array()) {
     // Check for template-specific controller first
     $class = self::get_template_class($post);
     if ( $class ) return $class;
 
     // Set all the post type classes if not set
     if ( empty(self::$_controller_post_types) ) {
-      self::$_controller_post_types['image'] = 'Picture';
-
-      $post_types = get_post_types(array(), 'objects');
-      foreach($post_types as $type) {
-        if ( !empty($type->wp_controller_class) ) {
-          self::$_controller_post_types[$type->name] = $type->wp_controller_class;
-        }
-      }
+      self::set_post_type_controllers();
     }
 
     if ( 'attachment' === $post->post_type && wp_attachment_is_image($post) ) {
@@ -221,6 +208,54 @@ class Post {
     }
 
     return apply_filters('wp_controllers_post_class', $class, $post, $options);
+  }
+
+  /**
+   * Returns the post type name for a given class. If the class itself does not have an explicit post type, it will
+   * traverse up inheritance until a class is found that is tied to a post type.
+   *
+   * @param string $class               Class to look up
+   * @param null $post_type_controllers Used for recursion
+   * @param null $template_controllers  Used for recursion
+   *
+   * @return string|false   Post type name if found, otherwise false
+   */
+  public static function get_controller_post_type(string $class, $post_type_controllers = null, $template_controllers = null) {
+    if ( !$class ) {
+      return false;
+    }
+
+    if ( null === $post_type_controllers ) {
+      $post_type_controllers = array_flip(self::$_controller_post_types);
+      $template_controllers = array_flip(self::$_controller_templates);
+    }
+
+    if ( empty(self::$_controller_post_types) ) {
+      self::set_post_type_controllers();
+    }
+
+    if ( isset($post_type_controllers[$class]) ) {
+      return $post_type_controllers[$class];
+    }
+
+    if ( isset($template_controllers[$class]) ) {
+      $parent_class = get_parent_class($class);
+      return self::get_controller_post_type($parent_class, $post_type_controllers, $template_controllers);
+    }
+  }
+
+  /**
+   * Maps the post types to controllers for later use
+   */
+  private static function set_post_type_controllers() {
+    self::$_controller_post_types['image'] = 'Picture';
+
+    $post_types = get_post_types(array(), 'objects');
+    foreach($post_types as $type) {
+      if ( !empty($type->wp_controller_class) ) {
+        self::$_controller_post_types[$type->name] = $type->wp_controller_class;
+      }
+    }
   }
 
   /**
@@ -417,7 +452,7 @@ class Post {
    * @return string
    */
   public static function archive_url() {
-    return get_post_type_archive_link(static::$controller_post_type);
+    return get_post_type_archive_link(self::get_controller_post_type(static::class));
   }
 
   /**
@@ -647,7 +682,7 @@ class Post {
 
     foreach($terms as $term) {
       $posts = get_posts(array(
-        'post_type'    => static::$controller_post_type,
+        'post_type'    => self::get_controller_post_type(static::class),
         'numberposts'  => -1,
         'tax_query'    => array(
           array(
@@ -686,7 +721,7 @@ class Post {
     }
 
     return static::get_controllers(array(
-      'post_type'   => static::$controller_post_type,
+      'post_type'   => self::get_controller_post_type(static::class),
       'numberposts' => $numberposts,
       'post__not_in'=> $exclude
     ));
@@ -703,7 +738,7 @@ class Post {
    * @return array                    array of controllers or empty array
    */
   public static function random_posts($count = -1, $post_type = null) {
-    $post_type = ( $post_type ) ? $post_type : static::$controller_post_type;
+    $post_type = ( $post_type ) ? $post_type : self::get_controller_post_type(static::class);
 
     $ids = get_posts(array(
       'post_type'   => $post_type,

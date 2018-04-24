@@ -31,6 +31,17 @@ class PostTest extends \WP_UnitTestCase {
     $this->assertEquals($post->ID, $controller->id);
   }
 
+  public function test_get_controller_post_type() {
+    // Root level post
+    $this->assertSame('post', Post::get_controller_post_type(Post::class));
+
+    // Child post
+    $this->assertSame('page', Post::get_controller_post_type(Page::class));
+
+    // TODO: Test classes with no explicit post type
+    // TODO: Test template classes
+  }
+
   public function test_wp_post_properties() {
     $post = $this->factory()->post->create_and_get();
     $controller = Post::get_controller($post);

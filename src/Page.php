@@ -7,13 +7,6 @@ namespace WPControllers;
  * Extends the page post type with methods unique to pages.
  */
 class Page extends Post {
-
-  /**
-   * @var string $post_type
-   */
-  public static
-    $controller_post_type = 'page';
-
   /**
    * @var Post $_parent
    * @var Post[] $_children
