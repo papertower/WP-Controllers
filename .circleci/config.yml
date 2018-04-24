@@ -1,6 +1,9 @@
 version: 2
 
 job-references:
+  mysql_image: &mysql_image
+    circleci/mysql:5.6
+
   php_job: &php_job
     environment:
       - WP_TESTS_DIR: "/tmp/wordpress-tests-lib"
@@ -38,25 +41,25 @@ jobs:
     <<: *php_job
     docker:
       - image: circleci/php:5.6
-      - image: circleci/mysql:5.6
+      - image: *mysql_image
 
   php70-build:
     <<: *php_job
     docker:
       - image: circleci/php:7.0
-      - image: circleci/mysql:5.6
+      - image: *mysql_image
 
   php71-build:
     <<: *php_job
     docker:
       - image: circleci/php:7.1
-      - image: circleci/mysql:5.6
+      - image: *mysql_image
 
   php72-build:
     <<: *php_job
     docker:
       - image: circleci/php:7.2
-      - image: circleci/mysql:5.6
+      - image: *mysql_image
 
 workflows:
   version: 2
