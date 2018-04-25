@@ -104,4 +104,26 @@ class PostTest extends \WP_UnitTestCase {
     $this->assertSame($timestamp, $controller->modified('timestamp', true));
     $this->assertSame(date('d:m:Y', $timestamp), $controller->modified('d:m:Y', true));
   }
+
+  public function test_terms() {
+    $term1 = $this->factory()->term->create_and_get();
+    $term2 = $this->factory()->term->create_and_get();
+    $term3 = $this->factory()->term->create_and_get();
+
+    // Post with multiple terms
+    $post = $this->factory()->post->create_and_get();
+    wp_set_post_terms($post->ID, [ $term1->term_id, $term2->term_id ], 'post_tag');
+
+    $controller = Post::get_controller($post);
+    $terms = $controller->terms('post_tag');
+
+    $this->assertSame(2, count($terms));
+    $this->assertSame([$term1->term_id, $term2->term_id], wp_list_pluck($terms, 'id'));
+
+    // Post wih no terms
+    $post = $this->factory()->post->create_and_get();
+    $controller = Post::get_controller($post);
+
+    $this->assertEmpty($controller->terms('post_tag'));
+  }
 }

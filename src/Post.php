@@ -242,6 +242,8 @@ class Post {
       $parent_class = get_parent_class($class);
       return self::get_controller_post_type($parent_class, $post_type_controllers, $template_controllers);
     }
+
+    return false;
   }
 
   /**
