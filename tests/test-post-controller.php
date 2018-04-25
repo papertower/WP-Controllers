@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: jason
- * Date: 4/18/18
- * Time: 2:43 PM
- */
 
 namespace WPControllers;
 
@@ -29,6 +23,33 @@ class PostTest extends \WP_UnitTestCase {
     $controller = Post::get_controller();
     $this->assertInstanceOf(Post::class, $controller);
     $this->assertEquals($post->ID, $controller->id);
+  }
+
+  public function test_get_controllers() {
+    $posts = $this->factory()->post->create_many(2);
+
+    // Array of posts
+    $controllers = Post::get_controllers($posts);
+    $this->assertEquals($posts, wp_list_pluck($controllers, 'id'));
+
+    // Query
+    $controllers = Post::get_controllers([
+      'post_type'   => 'post',
+      'order'       => 'ASC'
+    ]);
+    $this->assertEquals($posts, wp_list_pluck($controllers, 'id'));
+
+    // Something unexpected
+    $controllers = Post::get_controllers(false);
+    $this->assertEmpty($controllers);
+
+    // Get controllers by posts archive
+    $this->go_to(get_post_type_archive_link('post'));
+    $controllers = Post::get_controllers();
+    $controller_ids = wp_list_pluck($controllers, 'id');
+    sort($posts);
+    sort($controller_ids);
+    $this->assertEquals($posts, $controller_ids);
   }
 
   public function test_get_controller_post_type() {
