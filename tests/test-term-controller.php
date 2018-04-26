@@ -21,4 +21,16 @@ class TermTest extends \WP_UnitTestCase {
 
     $this->assertSame($parent->term_id, $parent_controller->id);
   }
+
+  public function test_children() {
+    $parent = $this->factory()->term->create_and_get();
+    $children = $this->factory()->term->create_many(2, [
+      'parent'  => $parent->term_id
+    ]);
+
+    $controller = Term::get_controller($parent);
+    $children = $controller->children();
+
+    $this->assertSame($children, wp_list_pluck($controller->children(), 'term_id'));
+  }
 }
