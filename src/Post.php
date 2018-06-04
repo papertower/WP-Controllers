@@ -169,6 +169,10 @@ class Post {
       // Retrieve posts from get_posts arguments
       if ( !isset($args['suppress_filters']) ) $args['suppress_filters'] = false;
       $posts = get_posts($args);
+      
+      if ( isset($args['fields']) && in_array($args['fields'], ['ids', 'id=>parent']) ) {
+        return $posts;
+      }
 
     } else {
       // Probably empty array of what would be posts or something unexpected
