@@ -119,6 +119,10 @@ class Term {
       $terms = $args;
     } else {
       $terms = get_terms($args);
+      
+      if ( isset($args['fields']) && 'all' !== $args['fields'] ) {
+        return $terms;
+      }
     }
 
     $Terms = array();
