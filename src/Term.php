@@ -96,7 +96,7 @@ class Term {
     }
 
     // Construct, cache, and return term
-    $controller_class = self::get_controller_class($term);
+    $controller_class = self::get_controller_class($term, $options);
     $controller = new $controller_class ($term);
 
     wp_cache_set($controller->id, $controller, self::CACHE_GROUP, MINUTE_IN_SECONDS * 10);
@@ -135,10 +135,11 @@ class Term {
 
   /**
    * Returns the class name for the corresponding term
-   * @param  WP_Term $term WP_Term to get the class for
-   * @return string        Class name
+   * @param  WP_Term $term    WP_Term to get the class for
+   * @param  array   $options Array of options
+   * @return string           Class name
    */
-  private static function get_controller_class($term) {
+  private static function get_controller_class($term, $options = array()) {
     if ( !is_array(self::$_controller_taxonomies) ) {
       self::$_controller_taxonomies = array();
 
@@ -154,7 +155,7 @@ class Term {
       ? self::$_controller_taxonomies[$term->taxonomy]
       : __CLASS__;
 
-    return apply_filters('wp_controllers_term_class', $class, $term);
+    return apply_filters('wp_controllers_term_class', $class, $term, $options);
   }
 
   /**
