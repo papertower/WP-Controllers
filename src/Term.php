@@ -176,7 +176,16 @@ class Term {
       $controller_class::flush_cache($term, $event);
     }
   }
-
+  
+  /**
+   * Returns the meta class to be used for the term
+   * @param  WP_Term $term Term the meta class will be used for
+   * @return string        Meta class
+   */
+  protected static function get_meta_class($term) {
+    return apply_filters('wp_controllers_term_meta_class', 'Meta', $term);
+  }
+  
   /**
    * Term constructor.
    *
@@ -194,7 +203,8 @@ class Term {
     $this->taxonomy_id  =& $term->term_taxonomy_id;
 
     // Meta class
-    $this->meta = new Meta($this->id, 'term');
+    $meta_class = static::get_meta_class($post);
+    $this->meta = new $meta_class($this->id, 'post');
   }
 
   /**
