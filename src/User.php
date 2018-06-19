@@ -83,9 +83,9 @@ class User {
         if ( false !== $user ) return $user;
 
       } else {
-        $user_id = wp_cache_get($key, self::CACHE_GROUP . '_' . $field);
+        $user_id = wp_cache_get("{$key}_{$field}", self::CACHE_GROUP);
         if ( false !== $user_id )
-          return wp_cache_get($key, self::CACHE_GROUP);
+          return wp_cache_get($user_id, self::CACHE_GROUP);
       }
 
       $user = get_user_by($field, $key);
