@@ -183,7 +183,7 @@ class Term {
    * @return string        Meta class
    */
   protected static function get_meta_class($term) {
-    return apply_filters('wp_controllers_term_meta_class', 'Meta', $term);
+    return apply_filters('wp_controllers_term_meta_class', Meta::class, $term);
   }
   
   /**
@@ -203,7 +203,7 @@ class Term {
     $this->taxonomy_id  =& $term->term_taxonomy_id;
 
     // Meta class
-    $meta_class = static::get_meta_class($post);
+    $meta_class = static::get_meta_class($term);
     $this->meta = new $meta_class($this->id, 'post');
   }
 
